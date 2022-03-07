@@ -4,7 +4,7 @@ import torch
 
 class CNN5(nn.Module):
     def __init__(self, in_channels, num_classes):
-        super(CNN5).__init__()
+        super(CNN5, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(in_channels, out_channels=32, kernel_size=(3, 3)),
             nn.ReLU(inplace=True),
