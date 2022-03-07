@@ -109,8 +109,7 @@ def main():
     prediction_loader = DataLoader(test_dataset, batch_size=args.batch_size)
 
     # Network
-    model = networks(architecture=args.architecture, in_channels=args.in_channels, num_classes=num_classes,
-                     requires_grad=args.requires_grad).to(device)
+    model = networks(architecture=args.architecture, in_channels=args.in_channels, num_classes=num_classes).to(device)
     print(model)
     n_parameters = parameters(model)
     print(f"The model has {n_parameters:,} trainable parameters")
