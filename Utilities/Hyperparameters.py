@@ -12,7 +12,7 @@ def arguments():
     parser.add_argument("--random-state", type=int, default=21)
     parser.add_argument("--height", type=int, default=256)
     parser.add_argument("--width", type=int, default=256)
-    parser.add_arguments("--save-model", default=False)
+    parser.add_argument("--save-model", default=False)
     parser.add_argument("--load-model", default=False)
     parser.add_argument("--augmentation", default="cutout", help="cutout, cutmix")
     parser.add_argument("--Augmentation", default="none", help="none, position, cutout")
