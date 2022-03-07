@@ -56,10 +56,11 @@ def main():
 
     # Set device
     if torch.cuda.is_available():
-        device = torch.device(f"cuda: {args.device}")
+        device = torch.device(f"cuda:{args.device}")  # Can continue going on here, like cuda:1 cuda:2....etc.
+        print("Running on the GPU")
     else:
         device = torch.device("cpu")
-    print(f"Running on the {args.device}")
+        print("Running on the CPU")
 
     # Load data
     dataset = ImageFolder("Sat_Data_b10")
