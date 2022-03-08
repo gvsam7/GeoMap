@@ -143,6 +143,7 @@ def main():
                 acc, loss = step(data, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
                 sum_acc += acc
         train_avg_acc = sum_acc / len(train_loader)
+        optimizer.step()
         # After each epoch perform scheduler.step, note in this scheduler we need to send in loss for that epoch!
         # scheduler.step(train_avg_acc)
 
