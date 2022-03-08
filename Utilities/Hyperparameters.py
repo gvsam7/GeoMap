@@ -7,7 +7,7 @@ def arguments():
     parser.add_argument("--device", type=int, default=0)
     parser.add_argument("--epochs", type=int, default=102)
     parser.add_argument("--in-channels", type=int, default=3)
-    parser.add_argument("--lr", type=float, default=1e-1)
+    parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--batch-size", type=int, default=100)
     parser.add_argument("--random-state", type=int, default=21)
     parser.add_argument("--height", type=int, default=256)
