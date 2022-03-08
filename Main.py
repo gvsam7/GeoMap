@@ -1,8 +1,11 @@
 """
 Author: Georgios Voulgaris
 Date:   01/03/2022
-Description:    Apply Deep Learning techniques, to map cement factories in China and monitor the pollution. Classify cement
-                factories using satellite images.
+Description:    Apply Deep Learning techniques, to map cement factories in China and monitor the pollution. Classify
+                cement factories using satellite images. In more detail, LandSat thermal band 10 (B10) Thermal infrared
+                (TIRS) 1 (10.6-11.19 micrometers wavelength) images and thermal band 11 Thermal infrared (TIRS) 2
+                (11.50-12.51 micrometers wavelength), were extracted from the Satellites and used to train various Deep
+                Learning architectures to classify the cement plants.
 """
 
 # imports
@@ -18,7 +21,8 @@ from Utilities.Data import DataRetrieve
 from Utilities.config import train_transforms, val_transforms, test_transforms
 from Utilities.Networks import networks
 from Utilities.Hyperparameters import arguments
-from plots.ModelExam import parameters, get_predictions, plot_confusion_matrix, plot_most_incorrect, get_representations, get_pca, plot_representations, get_tsne
+from plots.ModelExam import parameters, get_predictions, plot_confusion_matrix, plot_most_incorrect, \
+    get_representations, get_pca, plot_representations, get_tsne
 from pandas import DataFrame
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support as score
@@ -143,9 +147,9 @@ def main():
                 acc, loss = step(data, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
                 sum_acc += acc
         train_avg_acc = sum_acc / len(train_loader)
-        # After each epoch perform optimizer.step. Note in this optimizer, it is required to send in loss for that epoch!
-        optimizer.step()
-        # After each epoch perform scheduler.step. Note in this scheduler, it is required to send in loss for that epoch!
+        # After each epoch perform optimizer.step. Note in the optimizer, it is required to send in loss for that epoch!
+        # optimizer.step()
+        # After each epoch perform scheduler.step. Note in the scheduler, it is required to send in loss for that epoch!
         # scheduler.step(train_avg_acc)
 
         # Saving the model
