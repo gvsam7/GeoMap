@@ -117,6 +117,8 @@ def main():
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
+
+    # Define Scheduler
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=5, verbose=True)
 
     # Load model
@@ -141,7 +143,8 @@ def main():
                 acc, loss = step(data, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
                 sum_acc += acc
         train_avg_acc = sum_acc / len(train_loader)
-        scheduler.step(train_avg_acc)
+        # After each epoch perform scheduler.step, note in this scheduler we need to send in loss for that epoch!
+        # scheduler.step(train_avg_acc)
 
         # Saving the model
         if args.save_model == 'True':
@@ -161,6 +164,8 @@ def main():
             val_acc, val_loss = step(data, targets, model=model, optimizer=optimizer, criterion=criterion, train=False)
             sum_acc += val_acc
         val_avg_acc = sum_acc / len(val_loader)
+        # After each epoch perform scheduler.step, note in this scheduler we need to send in loss for that epoch!
+        scheduler.step(val_avg_acc)
 
         print(f"Epoch: {epoch + 1} \tTraining accuracy: {train_avg_acc:.2f} \n\t\tValidation accuracy: {val_avg_acc:.2f}")
 
