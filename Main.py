@@ -119,7 +119,7 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     # Define Scheduler
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=5, verbose=True)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=10, verbose=True)
 
     # Load model
     if args.load_model == 'True':
@@ -143,8 +143,9 @@ def main():
                 acc, loss = step(data, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
                 sum_acc += acc
         train_avg_acc = sum_acc / len(train_loader)
+        # After each epoch perform optimizer.step. Note in this optimizer, it is required to send in loss for that epoch!
         optimizer.step()
-        # After each epoch perform scheduler.step, note in this scheduler we need to send in loss for that epoch!
+        # After each epoch perform scheduler.step. Note in this scheduler, it is required to send in loss for that epoch!
         # scheduler.step(train_avg_acc)
 
         # Saving the model
@@ -166,7 +167,7 @@ def main():
             sum_acc += val_acc
         val_avg_acc = sum_acc / len(val_loader)
         # After each epoch perform scheduler.step, note in this scheduler we need to send in loss for that epoch!
-        scheduler.step(val_avg_acc)
+        # scheduler.step(val_avg_acc)
 
         print(f"Epoch: {epoch + 1} \tTraining accuracy: {train_avg_acc:.2f} \n\t\tValidation accuracy: {val_avg_acc:.2f}")
 
