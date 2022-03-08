@@ -2,10 +2,10 @@
 Author: Georgios Voulgaris
 Date:   01/03/2022
 Description:    Apply Deep Learning techniques, to map cement factories in China and monitor the pollution. Classify
-                cement factories using satellite images. In more detail, LandSat thermal band 10 (B10) Thermal infrared
-                (TIRS) 1 (10.6-11.19 micrometers wavelength) images and thermal band 11 Thermal infrared (TIRS) 2
-                (11.50-12.51 micrometers wavelength), were extracted from the Satellites and used to train various Deep
-                Learning architectures to classify the cement plants.
+                cement factories using satellite images. In more detail, LandSat band 10 (B10) Thermal infrared (TIRS) 1
+                (10.6-11.19 micrometers wavelength) and band 11 Thermal infrared (TIRS) 2 (11.50-12.51 micrometers)
+                images were extracted from the Satellites and used to train various Deep Learning architectures to
+                classify the cement plants and the surrounding land cover.
 """
 
 # imports
