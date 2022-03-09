@@ -4,8 +4,6 @@
 
 This project's aim is to apply deep learning techniques, to map cement plants in China and help monitor the pollution. Classify cement factories using satellite images. 
 
-![alt text](https://github.com/gvsam7/GeoMap/tree/main/Images/B10_ThermalInfraRed.PNG)
-
 ![image](https://github.com/gvsam7/GeoMap/tree/main/Images/B10_ThermalInfraRed.PNG)
 
 *Data:* LandSat band 10 (B10) Thermal infrared (TIRS) 1 (10.6-11.19 micrometers wavelength) and band 11 Thermal infrared (TIRS) 2 (11.50-12.51 micrometers wavelength) images
