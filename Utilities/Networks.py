@@ -3,9 +3,10 @@ from torch import nn
 from models.ResNet import ResNet18, ResNet50
 from models.CNN import CNN5, CNN_5
 from models.VGG import VGG13
+from models.Identity import Identity
 
 
-def networks(architecture, in_channels, num_classes):
+def networks(architecture, in_channels, num_classes, pretrained, requires_grad, global_pooling):
     if architecture == 'cnn5':
         model = CNN5(in_channels, num_classes)
     elif architecture == 'cnn_5':
@@ -14,6 +15,41 @@ def networks(architecture, in_channels, num_classes):
         model = ResNet18(in_channels, num_classes)
     elif architecture == 'resnet50':
         model = ResNet50(in_channels, num_classes)
+    elif architecture == 'vgg13':
+        model = VGG13(in_channels, num_classes)
+    # Load a pretrained model and modify it
+    elif architecture == 'tlvgg13':
+        model = torchvision.models.vgg13(pretrained)
+        if pretrained == 'True':
+            print(f"Transfer Learning, Pretrained={pretrained}")
+            # Does not change the layers up to this point
+            # Freeze the parameters so that the gradients are not computed in backward()
+            for param in model.parameters():
+                param.requires_grad = requires_grad
+            print(f"requires_grad = {requires_grad}")
+            if global_pooling == 'GP':
+                print(f"Global Pooling: {global_pooling}")
+                model.classifier = nn.Sequential(nn.Linear(25088, 4096),
+                                                 nn.ReLU(),
+                                                 nn.Dropout(),
+                                                 nn.Linear(4096, 4096),
+                                                 nn.ReLU(),
+                                                 nn.Dropout(),
+                                                 nn.Linear(4096, 10)
+                                                 )
+            else:
+                print(f"Global Pooling: {global_pooling}")
+                model.avgpool = Identity()
+                # This will only train the last layers
+                model.classifier = nn.Sequential(nn.Linear(32768, 100),
+                                                 nn.ReLU(),
+                                                 nn.Dropout(),
+                                                 nn.Linear(4096, 4096),
+                                                 nn.ReLU(),
+                                                 nn.Dropout(),
+                                                 nn.Linear(100, 10))
+        else:
+            print(f"Fully trained from Sat data, Pretrained={pretrained}")
     else:
         model = VGG13(in_channels, num_classes)
     return model
