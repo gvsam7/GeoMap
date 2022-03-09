@@ -6,13 +6,15 @@ VGG_arch = {
 
 
 class VGG(nn.Module):
-    def __init(self, VGG_arch, in_channels=3, num_classes=2):
+    def __init__(self, VGG_arch, in_channels=3, num_classes=2):
         super(VGG, self).__init__()
         self.in_channels = in_channels
         self.conv = self.conv_layers(VGG_arch)
 
-        self.fc = nn.Sequential(
-            nn.Linear(512*8*8, 4096),
+        self.fcs = nn.Sequential(
+            nn.Linear(512 * 8 * 8, 4096),  # 256x256 (165,763,145 trainable parameters)
+            # nn.Linear(512 * 3 * 3, 4096),  # 100x100 (50,419,785 trainable parameters)
+            # nn.Linear(512 * 1 * 1, 4096),  # 50x50 (33,642,569 trainable parameters)
             nn.ReLU(),
             nn.Dropout(p=0.5),
             nn.Linear(4096, 4096),
@@ -24,10 +26,10 @@ class VGG(nn.Module):
     def forward(self, x):
         x = self.conv(x)
         x = x.reshape(x.shape[0], -1)
-        x = self.fc(x)
+        x = self.fcs(x)
         return x
 
-    def conv_layer(self, architecture):
+    def conv_layers(self, architecture):
         layers = []
         in_channels = self.in_channels
 
@@ -35,15 +37,16 @@ class VGG(nn.Module):
             if type(x) == int:
                 out_channels = x
 
-                layers += [nn.Conv2d(inchannels=in_channels, out_channels=out_channels,
-                                     kenrel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
+                layers += [nn.Conv2d(in_channels=in_channels, out_channels=out_channels,
+                                     kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
                            nn.BatchNorm2d(x),
                            nn.ReLU()]
+                in_channels = x
             elif x == 'M':
                 layers += [nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))]
-        return nn.Sequential(*layers)
+
+        return nn.Sequential(*layers)  # unpacks all that is stored on the layers list
 
 
 def VGG13(in_channels=3, num_classes=2):
     return VGG(VGG_arch['VGG13'], in_channels, num_classes)
-
