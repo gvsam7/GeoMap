@@ -6,7 +6,7 @@ VGG_arch = {
 
 
 class VGG(nn.Module):
-    def __init(self, VGG_arch, in_channels, num_classes):
+    def __init(self, VGG_arch, in_channels=3, num_classes=2):
         super(VGG, self).__init__()
         self.in_channels = in_channels
         self.conv = self.conv_layers(VGG_arch)

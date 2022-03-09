@@ -35,7 +35,7 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
                                                  nn.Linear(4096, 4096),
                                                  nn.ReLU(),
                                                  nn.Dropout(),
-                                                 nn.Linear(4096, 10)
+                                                 nn.Linear(4096, 2)
                                                  )
             else:
                 print(f"Global Pooling: {global_pooling}")
@@ -47,7 +47,7 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
                                                  nn.Linear(4096, 4096),
                                                  nn.ReLU(),
                                                  nn.Dropout(),
-                                                 nn.Linear(100, 10))
+                                                 nn.Linear(100, 2))
         else:
             print(f"Fully trained from Sat data, Pretrained={pretrained}")
     else:
