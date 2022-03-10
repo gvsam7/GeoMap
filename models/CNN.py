@@ -1,12 +1,13 @@
 from torch import nn
 
 CNN_arch = {
+    'CNN4': [32, 64, 128, 256],
     'CNN5': [32, 64, 128, 256, 512]
 }
 
 
 class CNN(nn.Module):
-    def __init__(self, CNN_arch, in_channels=3, num_classes=2):
+    def __init__(self, CNN_arch, in_linear, in_channels=3, num_classes=2):
         super(CNN, self).__init__()
         self.in_channels = in_channels
         self.features = self.conv_layers(CNN_arch)
@@ -14,7 +15,7 @@ class CNN(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
 
         self.classifier = nn.Sequential(
-            nn.Linear(512, num_classes)
+            nn.Linear(in_linear, num_classes)
         )
 
     def forward(self, x):
@@ -41,8 +42,14 @@ class CNN(nn.Module):
         return nn.Sequential(*layers)
 
 
+def CNN_4(in_channels=3, num_classes=2):
+    in_linear = CNN_arch['CNN4'][-1]
+    return CNN(CNN_arch['CNN4'], in_linear, in_channels, num_classes)
+
+
 def CNN_5(in_channels=3, num_classes=2):
-    return CNN(CNN_arch['CNN5'], in_channels, num_classes)
+    in_linear = CNN_arch['CNN5'][-1]
+    return CNN(CNN_arch['CNN5'], in_linear, in_channels, num_classes)
 
 
 class CNN5(nn.Module):
