@@ -15,8 +15,24 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
         model = CNN_5(in_channels, num_classes)
     elif architecture == 'resnet18':
         model = ResNet18(in_channels, num_classes)
+    elif architecture == 'tlresnet18':
+        model = torchvision.models.resnet18(pretrained)
+        if pretrained == 'True':
+            print(f"Transfer Learning, Pretrained = {pretrained}")
+            for param in model.parameters():
+                param.requires_grad = requires_grad
+            print(f"requires_grad = {requires_grad}")
+            model.fc = nn.Linear(512, num_classes)
     elif architecture == 'resnet50':
         model = ResNet50(in_channels, num_classes)
+    elif architecture == 'tlresnet50':
+        model = torchvision.models.resnet50(pretrained)
+        if pretrained == 'True':
+            print(f"Transfer Learning, Pretrained={pretrained}")
+            for param in model.parameters():
+                param.requires_grad = requires_grad
+            print(f"requires_grad = {requires_grad}")
+            model.fc = nn.Linear(512, num_classes)
     elif architecture == 'vgg13':
         model = VGG13(in_channels, num_classes)
     # Load a pretrained model and modify it
@@ -53,5 +69,11 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
         else:
             print(f"Fully trained from Sat data, Pretrained={pretrained}")
     else:
-        model = VGG13(in_channels, num_classes)
+        model = torchvision.models.densenet161(pretrained)
+        if pretrained == 'True':
+            print(f"Transfer Learning, Pretrained = {pretrained}")
+            for param in model.parameters():
+                param.requires_grad = requires_grad
+            print(f"requires_grad = {requires_grad}")
+            model.classifier = nn.Linear(1024, num_classes)
     return model
