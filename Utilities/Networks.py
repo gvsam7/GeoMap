@@ -32,7 +32,7 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
             for param in model.parameters():
                 param.requires_grad = requires_grad
             print(f"requires_grad = {requires_grad}")
-            model.fc = nn.Linear(512, num_classes)
+            model.fc = nn.Linear(512*4, num_classes)
     elif architecture == 'vgg13':
         model = VGG13(in_channels, num_classes)
     # Load a pretrained model and modify it
@@ -59,13 +59,13 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
                 print(f"Global Pooling: {global_pooling}")
                 model.avgpool = Identity()
                 # This will only train the last layers
-                model.classifier = nn.Sequential(nn.Linear(32768, 100),
+                model.classifier = nn.Sequential(nn.Linear(32768, 4096),
                                                  nn.ReLU(),
                                                  nn.Dropout(),
                                                  nn.Linear(4096, 4096),
                                                  nn.ReLU(),
                                                  nn.Dropout(),
-                                                 nn.Linear(100, 2))
+                                                 nn.Linear(4096, 2))
         else:
             print(f"Fully trained from Sat data, Pretrained={pretrained}")
     else:
@@ -75,5 +75,5 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
             for param in model.parameters():
                 param.requires_grad = requires_grad
             print(f"requires_grad = {requires_grad}")
-            model.classifier = nn.Linear(1024, num_classes)
+            model.classifier = nn.Linear(2208, num_classes)
     return model

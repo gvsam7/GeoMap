@@ -56,11 +56,11 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
 
-def ResNet18(in_channels, num_classes=10):
+def ResNet18(in_channels, num_classes=2):
     return ResNet(block, [2, 2, 2, 2], in_channels, num_classes)
 
 
-def ResNet50(in_channels=3, num_classes=10):
+def ResNet50(in_channels=3, num_classes=2):
     return ResNet(block, [3, 4, 6, 3], in_channels, num_classes)
 
 
