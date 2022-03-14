@@ -9,7 +9,7 @@ This project's aim is to apply deep learning techniques, to map cement plants in
 *Data:* LandSat band 10 (B10) Thermal infrared (TIRS) 1 (10.6-11.19 micrometers wavelength) and band 11 Thermal infrared (TIRS) 2 (11.50-12.51 micrometers wavelength) images
  were extracted from the Satellites and used to train various Deep Learning architectures to classify the cement plants and the surrounding land cover.
 
-*Architectures:* 5 CNN, ResNet18, ResNet50, VGG13, DenseNet161.
+*Architectures:* 5 CNN, ResNet18, ResNet50, VGG13, DenseNet161, EfficientNet.
 
 *Images:* 256x256 pixel images.
 
@@ -18,3 +18,6 @@ This project's aim is to apply deep learning techniques, to map cement plants in
 *Plots:* Average GPU usage per architecture, Interquartile, F1 Score heatmap for each class, Confusion Matrix, PCA and t-SNE plots, and most confident incorrect predictions.
 
 *Data augmentations:* Geometric Transformations, Cutout, Mixup, and CutMix, Pooling (Global Pool, Mix Pool, Gated Mix Pool).
+
+## Papers
+- [EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks](https://arxiv.org/abs/1905.11946)
