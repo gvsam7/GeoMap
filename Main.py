@@ -54,6 +54,14 @@ def get_all_preds(model, loader, device):
     return all_preds
 
 
+def database(data):
+    if data == 'b10':
+        dataset = ImageFolder("Sat_Data_b10")
+    else:
+        dataset = ImageFolder("Sat_Data_b11")
+    return dataset
+
+
 def main():
     args = arguments()
     wandb.init(entity="predictive-analytics-lab", project="PlantPollution", config=args)
@@ -67,7 +75,13 @@ def main():
         print("Running on the CPU")
 
     # Load data
-    dataset = ImageFolder("Sat_Data_b10")
+    """
+    if args.dataset == 'b10':
+        dataset = ImageFolder("Sat_Data_b10")
+    else: 
+        dataset = ImageFolder("Sat_Data_b11")
+        """
+    dataset = database(args.dataset)
     print(f"Dataset is {args.dataset}")
 
     labels = dataset.classes
