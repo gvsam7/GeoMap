@@ -75,12 +75,6 @@ def main():
         print("Running on the CPU")
 
     # Load data
-    """
-    if args.dataset == 'b10':
-        dataset = ImageFolder("Sat_Data_b10")
-    else: 
-        dataset = ImageFolder("Sat_Data_b11")
-        """
     dataset = database(args.dataset)
     print(f"Dataset is {args.dataset}")
 
