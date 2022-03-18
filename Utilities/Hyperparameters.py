@@ -14,7 +14,7 @@ def arguments():
     parser.add_argument("--width", type=int, default=256)
     parser.add_argument("--save-model", default=False)
     parser.add_argument("--load-model", default=False)
-    parser.add_argument("--augmentation", default="cutout", help="cutout, cutmix")
+    parser.add_argument("--augmentation", default="cutout", help="cutout, mixup, cutmix")
     parser.add_argument("--Augmentation", default="none", help="none, position, cutout")
     parser.add_argument("--pretrained", default=True)
     parser.add_argument("--requires-grad", default=False)

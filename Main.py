@@ -153,6 +153,8 @@ def main():
 
             if args.augmentation == "cutmix":
                 None
+            elif args.augmentation == "mixup":
+                None
             else:
                 acc, loss = step(data, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
                 sum_acc += acc
