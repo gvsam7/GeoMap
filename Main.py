@@ -131,7 +131,7 @@ def main():
     # Loss and optimizer
     # criterion = nn.CrossEntropyLoss()
     # use class weighting for unbalanced dataset
-    criterion = nn.CrossEntropyLoss(weight=torch.tensor([0, 2]))
+    criterion = nn.CrossEntropyLoss(weight=torch.FloatTensor([2, 1]))
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     # Define Scheduler
