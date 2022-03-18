@@ -55,7 +55,7 @@ class DataRetrieve(Dataset):
 
             for _ in range(self.num_mix):
                 r = np.random.rand(1)
-                if self.beta <=0 or r > self.prob:
+                if self.beta <= 0 or r > self.prob:
                     continue
 
                 # generate mixed sample

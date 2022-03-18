@@ -129,7 +129,9 @@ def main():
     print(f"The model has {n_parameters:,} trainable parameters")
 
     # Loss and optimizer
-    criterion = nn.CrossEntropyLoss()
+    # criterion = nn.CrossEntropyLoss()
+    # use class weighting for unbalanced dataset
+    criterion = nn.CrossEntropyLoss(weight=torch.tensor([0, 2]))
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     # Define Scheduler
