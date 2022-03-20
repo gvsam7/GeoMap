@@ -9,7 +9,7 @@ This project's aim is to apply deep learning techniques, to map cement plants in
 *Data:* LandSat band 10 (B10) Thermal infrared (TIRS) 1 (10.6-11.19 micrometers wavelength) and band 11 Thermal infrared (TIRS) 2 (11.50-12.51 micrometers wavelength) images
  were extracted from the Satellites and used to train various Deep Learning architectures to classify the cement plants and the surrounding land cover.
 
-| Bands                                 | |Wavelength (micrometers) | | Resolution (meters) | | Useful for mapping |
+| Bands                                 | |Wavelength (micrometers) | | Resolution (meters) | | Useful for mapping                                                         |
 | :---                                  | | :---                    | | :---                | | :----               
 | Band 7 - Short-wave Infrared (SWIR) 2 | | 2.11-2.29               | | 30                  | | Improved moisture content of soil and vegetation; penetrates thin clouds   |
 | Band 10 - Thermal Infrared (TIRS) 1   | | 10.6-11.19              | | 100                 | | 100 meter resolution, thermal mapping and estimated soil moisture          |
