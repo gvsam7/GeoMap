@@ -9,6 +9,7 @@ The project's aim is to apply deep learning techniques, to map cement plants in 
 *Data:* Data of cement plants and the surounded landcovers where extracted from Landsat8 earth observation satellite. Landsat8 employ's two main sensors:
 1. Operational Land Imager (OLI): generates 9 spectral bands (Band 1 to 9). OLI images can discriminate vegetation types, cultural features, biomass, vigor, etc.
 2. Thermal Infrared Sensor (TIRS): consists of 2 thermal bands (Band 10 and 11) with a spatial resolution of 100 meters. TIRS measures Earth’s thermal energy, useful when tracking how land and water is used.
+
 LandSat band 10 (B10) Thermal infrared (TIRS) 1, band 11 Thermal infrared (TIRS) 2, and band 7 Short-Wave Infrared (SWIR) 2 images were extracted from the Satellites and used to train various Deep Learning architectures to classify the cement plants and the surrounding land cover.
 
 ![Band7](https://github.com/gvsam7/GeoMap/blob/main/Images/B7_ThermalInfraRed.PNG)
