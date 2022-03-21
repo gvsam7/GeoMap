@@ -2,7 +2,10 @@
 
 ## Description
 
-The project's aim is to employ satellite remote sensing data and apply deep learning techniques, to map cement plants in China and help monitor the pollution.  
+The project's aim is to employ satellite remote sensing data and apply deep learning techniques, to map cement plants in China and help monitor the pollution. 
+
+This work comprises of two parts. In the first part, used the [Global Database of Cement Production Assets](https://www.cgfi.ac.uk/spatial-finance-initiative/geoasset-project/geoasset-databases/) and produced a shapefile of all the cement plants and the surrounding land covers. Next, used the Landsat 8 sensors and produced thermal images using bands 10 and 11. Furthermore, used band 7 Sort Wave Infrared (SWIR) 2 to create images.
+For the second part, the created data were used to train various Deep learning architectures and validate their performance in mapping the cement factories. 
 
 ![China](https://github.com/gvsam7/GeoMap/blob/main/Images/China_cement.PNG)
 
