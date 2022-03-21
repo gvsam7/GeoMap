@@ -39,4 +39,5 @@ LandSat band 10 (B10) Thermal infrared (TIRS) 1, band 11 Thermal infrared (TIRS)
 *Data augmentations:* Geometric Transformations, Cutout, Mixup, and CutMix, Pooling (Global Pool, Mix Pool, Gated Mix Pool).
 
 ## Papers
+- [Global CO2 emissions from cement production](https://essd.copernicus.org/articles/10/195/2018/)
 - [EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks](https://arxiv.org/abs/1905.11946)
