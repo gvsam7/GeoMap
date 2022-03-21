@@ -57,8 +57,10 @@ def get_all_preds(model, loader, device):
 def database(data):
     if data == 'b10':
         dataset = ImageFolder("Sat_Data_b10")
-    else:
+    elif data == 'b11':
         dataset = ImageFolder("Sat_Data_b11")
+    else:
+        dataset = ImageFolder("Sat_Data_b7")
     return dataset
 
 
@@ -114,7 +116,6 @@ def main():
         test_ds,
         transforms=test_transforms(args.width, args.height)
     )
-
     # Create train, validation and test dataloaders
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
