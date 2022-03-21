@@ -2,7 +2,7 @@
 
 ## Description
 
-The project's aim is to apply deep learning techniques, to map cement plants in China and help monitor the pollution.  
+The project's aim is to employ satellite remote sensing data and apply deep learning techniques, to map cement plants in China and help monitor the pollution.  
 
 ![China](https://github.com/gvsam7/GeoMap/blob/main/Images/China_cement.PNG)
 
