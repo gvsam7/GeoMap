@@ -59,6 +59,8 @@ def database(data):
         dataset = ImageFolder("Sat_Data_b10")
     elif data == 'b11':
         dataset = ImageFolder("Sat_Data_b11")
+    elif data == 'b6':
+        dataset = ImageFolder("Sat_Data_b6")
     else:
         dataset = ImageFolder("Sat_Data_b7")
     return dataset
