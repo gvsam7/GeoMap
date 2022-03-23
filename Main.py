@@ -66,6 +66,18 @@ def database(data):
     return dataset
 
 
+def loss_fun(class_weight):
+    if class_weight == 'True':
+        # use class weighting for unbalanced dataset
+        weights = [3, 1]
+        class_weights = torch.FloatTensor(weights).cuda()
+        criterion = nn.CrossEntropyLoss(weight=class_weights)
+    else:
+        criterion = nn.CrossEntropyLoss()
+    print(f"Criterion: {criterion}")
+    return criterion
+
+
 def main():
     args = arguments()
     wandb.init(entity="predictive-analytics-lab", project="PlantPollution", config=args)
@@ -132,7 +144,8 @@ def main():
     print(f"The model has {n_parameters:,} trainable parameters")
 
     # Loss and optimizer
-    criterion = nn.CrossEntropyLoss()
+    criterion = loss_fun(args.class_weighting)
+    # criterion = nn.CrossEntropyLoss()
     """
     # use class weighting for unbalanced dataset
     weights = [3, 1]
