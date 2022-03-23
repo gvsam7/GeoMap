@@ -74,7 +74,7 @@ def loss_fun(class_weight):
         criterion = nn.CrossEntropyLoss(weight=class_weights)
     else:
         criterion = nn.CrossEntropyLoss()
-    print(f"Criterion: {criterion}")
+    print(f"Class weight: {class_weight}")
     return criterion
 
 
