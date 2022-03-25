@@ -1,9 +1,9 @@
 from torch import nn
 
 CNN_arch = {
-    'CNN4': [32, 64, 128, 256],
-    'CNN5': [32, 64, 128, 256, 512],
-    'CNN6': [32, 64, 128, 256, 512, 1024]
+    'CNN4': [32, 'M', 64, 'M', 128, 'M', 256],
+    'CNN5': [32, 'M', 64, 'M', 128, 'M', 256, 'M', 512],
+    'CNN6': [32, 'M', 64, 'M', 128, 'M', 256, 'M', 512, 'M', 1024]
 }
 
 
@@ -31,14 +31,16 @@ class CNN(nn.Module):
         in_channels = self.in_channels
 
         for x in architecture:
-            out_channels = x
+            if type(x) == int:
+                out_channels = x
 
-            layers += [nn.Conv2d(in_channels=in_channels, out_channels=out_channels,
-                                 kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
-                       nn.ReLU(inplace=True),
-                       nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2)),
-                       nn.BatchNorm2d(x)]
-            in_channels = x
+                layers += [nn.Conv2d(in_channels=in_channels, out_channels=out_channels,
+                                     kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
+                           nn.ReLU(inplace=True),
+                           nn.BatchNorm2d(x)]
+                in_channels = x
+            elif x == 'M':
+                layers += [nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))]
 
         return nn.Sequential(*layers)
 
