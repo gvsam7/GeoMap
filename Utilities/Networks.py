@@ -1,7 +1,7 @@
 import torchvision
 from torch import nn
 from models.ResNet import ResNet18, ResNet50
-from models.CNN import CNN5, CNN_4, CNN_5, CNN_6
+from models.CNN import CNN5, CNN_4, CNN_5, CNN_6, CNN_7
 from models.VGG import VGG13
 from models.Identity import Identity
 from models.EfficientNet import EfficientNet
@@ -16,6 +16,8 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
         model = CNN_5(in_channels, num_classes)
     elif architecture == 'cnn_6':
         model = CNN_6(in_channels, num_classes)
+    elif architecture == 'cnn_7':
+        model = CNN_7(in_channels, num_classes)
     elif architecture == 'efficientnet':
         print(f"version: {version}")
         model = EfficientNet(version, num_classes)

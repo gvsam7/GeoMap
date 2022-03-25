@@ -3,7 +3,8 @@ from torch import nn
 CNN_arch = {
     'CNN4': [32, 'M', 64, 'M', 128, 'M', 256],
     'CNN5': [32, 'M', 64, 'M', 128, 'M', 256, 'M', 512],
-    'CNN6': [32, 'M', 64, 'M', 128, 'M', 256, 'M', 512, 'M', 1024]
+    'CNN6': [32, 'M', 64, 'M', 128, 'M', 256, 'M', 512, 'M', 1024],
+    'CNN7': [32, 'M', 64, 'M', 128, 'M', 256, 256, 'M', 512, 512]
 }
 
 
@@ -58,6 +59,10 @@ def CNN_5(in_channels=3, num_classes=2):
 def CNN_6(in_channels=3, num_classes=2):
     in_linear = CNN_arch['CNN6'][-1]
     return CNN(CNN_arch['CNN6'], in_linear, in_channels, num_classes)
+
+def CNN_7(in_channels=3, num_classes=2):
+    in_linear = CNN_arch['CNN7'][-1]
+    return CNN(CNN_arch['CNN7'], in_linear, in_channels, num_classes)
 
 
 class CNN5(nn.Module):
