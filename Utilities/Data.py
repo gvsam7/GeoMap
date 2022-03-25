@@ -6,7 +6,7 @@ from CutMix.utils import onehot, rand_bbox
 
 
 class DataRetrieve(Dataset):
-    def __init__(self, ds: Dataset, transforms: Optional[A.Compose] = None, augmentations=None, num_class=9, num_mix=1,
+    def __init__(self, ds: Dataset, transforms: Optional[A.Compose] = None, augmentations=None, num_class=2, num_mix=1,
                  beta=0.25, prob=0.5):
         super().__init__()
         self.ds = ds
@@ -49,6 +49,26 @@ class DataRetrieve(Dataset):
                 lam = 1 - ((bbx2 - bbx1) * (bby2 - bby1) / (image.size()[-1] * image.size()[-2]))
                 target_onehot = target_onehot * lam + target2_onehot * (1. - lam)
 
+            return image, target_onehot
+        elif self.augmentations == "mixup":
+            target_onehot = onehot(self.num_class, target)
+
+            for _ in range(self.num_mix):
+                r = np.random.rand(1)
+                if self.beta <= 0 or r > self.prob:
+                    continue
+
+                # generate mixed sample
+                lam = np.random.beta(self.beta, self.beta)
+                rand_idx = np.random.choice(range(len(self)))
+
+                image2, target2 = self.ds[rand_idx]
+                image2 = np.array(image2)
+                image2 = self.transforms(image=image2)["image"]
+                target2_onehot = onehot(self.num_class, target2)
+
+                image = lam * image + (1 - lam) * image2
+                target_onehot = target_onehot * lam + target2_onehot * (1. - lam)
             return image, target_onehot
 
         return image, target
