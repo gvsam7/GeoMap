@@ -1,21 +1,21 @@
 import torchvision
 from torch import nn
 from models.ResNet import ResNet18, ResNet50
-from models.CNN import CNN5, CNN_4, CNN_5, CNN_6, CNN_7
+from models.CNN import CNN4, CNN5, CNN6, CNN7
 from models.VGG import VGG13
 from models.Identity import Identity
 from models.EfficientNet import EfficientNet
 
 
 def networks(architecture, in_channels, num_classes, pretrained, requires_grad, global_pooling, version):
-    if architecture == 'cnn_4':
-        model = CNN_4(in_channels, num_classes)
-    elif architecture == 'cnn_5':
-        model = CNN_5(in_channels, num_classes)
-    elif architecture == 'cnn_6':
-        model = CNN_6(in_channels, num_classes)
-    elif architecture == 'cnn_7':
-        model = CNN_7(in_channels, num_classes)
+    if architecture == 'cnn4':
+        model = CNN4(in_channels, num_classes)
+    elif architecture == 'cnn5':
+        model = CNN5(in_channels, num_classes)
+    elif architecture == 'cnn6':
+        model = CNN6(in_channels, num_classes)
+    elif architecture == 'cnn7':
+        model = CNN7(in_channels, num_classes)
     elif architecture == 'efficientnet':
         print(f"version: {version}")
         model = EfficientNet(version, num_classes)

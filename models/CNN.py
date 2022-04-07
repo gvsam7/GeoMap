@@ -46,22 +46,22 @@ class CNN(nn.Module):
         return nn.Sequential(*layers)
 
 
-def CNN_4(in_channels=3, num_classes=2):
+def CNN4(in_channels=3, num_classes=2):
     in_linear = CNN_arch['CNN4'][-1]
     return CNN(CNN_arch['CNN4'], in_linear, in_channels, num_classes)
 
 
-def CNN_5(in_channels=3, num_classes=2):
+def CNN5(in_channels=3, num_classes=2):
     in_linear = CNN_arch['CNN5'][-1]
     return CNN(CNN_arch['CNN5'], in_linear, in_channels, num_classes)
 
 
-def CNN_6(in_channels=3, num_classes=2):
+def CNN6(in_channels=3, num_classes=2):
     in_linear = CNN_arch['CNN6'][-1]
     return CNN(CNN_arch['CNN6'], in_linear, in_channels, num_classes)
 
 
-def CNN_7(in_channels=3, num_classes=2):
+def CNN7(in_channels=3, num_classes=2):
     in_linear = CNN_arch['CNN7'][-1]
     return CNN(CNN_arch['CNN7'], in_linear, in_channels, num_classes)
 
