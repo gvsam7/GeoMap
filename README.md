@@ -10,7 +10,7 @@ For the second part, the created data were used to train various Deep learning a
 
 ![China](https://github.com/gvsam7/GeoMap/blob/main/Images/China_cement.PNG)
 
-*Data:* Data of cement plants and the surounded landcovers where extracted from Landsat8 earth observation satellite. Landsat8 employ's two main sensors:
+*Data:* Data of cement plants and the surrounded landcovers were extracted from Landsat8 earth observation satellite. Landsat8 employ's two main sensors:
 1. Operational Land Imager (OLI): generates 9 spectral bands (Band 1 to 9). OLI images can discriminate vegetation types, cultural features, biomass, vigor, etc. For the current project, band 7 (SWIR) is of interest since it allows imaging soil types, geological features, and minerals such as copper and sulfates. It’s also sensitive to vegetation and soil moisture variations. 
 2. Thermal Infrared Sensor (TIRS): consists of 2 thermal bands (Band 10 and 11) with a spatial resolution of 100 meters. TIRS measures Earth’s thermal energy, useful when tracking how land and water is used.
 

@@ -22,7 +22,7 @@ def arguments():
     parser.add_argument("--class-weighting", default=False)
     parser.add_argument("--dataset", default="b10", help="b6, b7, b10, b11")
     parser.add_argument("--version", default="b0", help="b1:b7")
-    parser.add_argument("--architecture", default="cnn5", help="cnn5=CNN5, cnn_4=CNN_4, cnn_5=CNN_5, cnn_6=CNN_6,"
+    parser.add_argument("--architecture", default="cnn_5", help="cnn_4=CNN_4, cnn_5=CNN_5, cnn_6=CNN_6,"
                                                                "cnn_7=CNN_7, resnet18=ResNet18,"
                                                                "tlresnet18=pretrain ResNet18, resnet50=ResNet50, "
                                                                "tlresnet50=pretrain ResNet50, vgg13=VGG13, "

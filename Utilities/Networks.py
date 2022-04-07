@@ -8,9 +8,7 @@ from models.EfficientNet import EfficientNet
 
 
 def networks(architecture, in_channels, num_classes, pretrained, requires_grad, global_pooling, version):
-    if architecture == 'cnn5':
-        model = CNN5(in_channels, num_classes)
-    elif architecture == 'cnn_4':
+    if architecture == 'cnn_4':
         model = CNN_4(in_channels, num_classes)
     elif architecture == 'cnn_5':
         model = CNN_5(in_channels, num_classes)
