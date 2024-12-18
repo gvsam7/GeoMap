@@ -65,3 +65,8 @@ class ResNet(nn.Module):
 
 def DilGabMPResNet18(in_channels, num_classes=10):
     return ResNet(mpblock_18, [2, 2, 2, 2], in_channels, num_classes)
+
+
+def DilGabMPResNet50(in_channels=3, num_classes=2):
+    return ResNet(mpblock_18, [3, 4, 6, 3], in_channels, num_classes)
+

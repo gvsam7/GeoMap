@@ -1,7 +1,7 @@
 import torchvision
 from torch import nn
 from models.ResNet import ResNet18, ResNet50
-from models.DilGabMPResNet18 import DilGabMPResNet18
+from models.DilGabMPResNet18 import DilGabMPResNet18, DilGabMPResNet50
 from models.CNN import CNN4, CNN5, CNN6, CNN7
 from models.VGG import VGG13
 from models.Identity import Identity
@@ -24,6 +24,8 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
         model = ResNet18(in_channels, num_classes)
     elif architecture == 'dilgabmpresnet18':
         model = DilGabMPResNet18(in_channels, num_classes)
+    elif architecture == 'dilgabmpresnet50':
+        model = DilGabMPResNet50(in_channels, num_classes)
     elif architecture == 'tlresnet18':
         model = torchvision.models.resnet18(pretrained)
         if pretrained == 'True':
