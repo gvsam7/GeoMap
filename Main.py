@@ -82,7 +82,7 @@ def loss_fun(class_weight):
 
 def main():
     args = arguments()
-    wandb.init(entity="predictive-analytics-lab", project="PlantPollution", config=args)
+    wandb.init(project="PlantPollution", config=args)
 
     # Set device
     if torch.cuda.is_available():
