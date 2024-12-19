@@ -107,7 +107,12 @@ def main():
     dataset = database(args.dataset)
     print(f"Dataset is {args.dataset}")
 
-    labels = dataset.classes
+    if args.dataset == 'fusion':
+        # Use the 'b10' dataset as a reference to extract class labels
+        labels = dataset['b10'].classes
+    else:
+        labels = dataset.classes
+        
     num_classes = len(labels)
     y = dataset.targets
     dataset_len = len(dataset)
