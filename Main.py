@@ -107,6 +107,7 @@ def main():
     dataset = database(args.dataset)
     print(f"Dataset is {args.dataset}")
 
+    # Get labels
     if args.dataset == 'fusion':
         # Use the 'b10' dataset as a reference to extract class labels
         labels = dataset['b10'].classes
@@ -115,27 +116,15 @@ def main():
 
     num_classes = len(labels)
     # If using fusion, handle the datasets separately
+
+    # Get targets and dataset length
     if args.dataset == 'fusion':
-        # Assuming each dataset in the 'fusion' dictionary has the same target labels
-        dataset_b10 = dataset['b10']
-        dataset_b11 = dataset['b11']
-        dataset_b6 = dataset['b6']
-        dataset_b7 = dataset['b7']
-        dataset_b76 = dataset['b76']
-
-        # Concatenate all the targets (this depends on how you want to handle them, here we concatenate)
-        targets_b10 = dataset_b10.targets
-        targets_b11 = dataset_b11.targets
-        targets_b6 = dataset_b6.targets
-        targets_b7 = dataset_b7.targets
-        targets_b76 = dataset_b76.targets
-
-        # Concatenate or otherwise process targets
-        y = np.concatenate([targets_b10, targets_b11, targets_b6, targets_b7, targets_b76])
+        y = dataset['b10'].targets
     else:
         # Regular dataset handling for non-fusion cases
         y = dataset.targets
     # y = dataset.targets
+
     dataset_len = len(dataset)
 
     # Stratify split data
@@ -145,30 +134,58 @@ def main():
     y2 = y_trainval
     X_train, X_val, y_train, y_val = train_test_split(X2, y2, test_size=0.2, stratify=y2,
                                                       random_state=args.random_state, shuffle=True)
-    train_ds = Subset(dataset, X_train)
-    val_ds = Subset(dataset, X_val)
-    test_ds = Subset(dataset, X_test)
-    filepaths = np.array(tuple(zip(*dataset.imgs))[0])
-    train_filepaths = filepaths[X_train]
-    val_filepaths = filepaths[X_val]
-    test_filepaths = filepaths[X_test]
 
-    # Create train, validation and test datasets
-    train_dataset = DataRetrieve(
-        train_ds,
-        transforms=train_transforms(args.width, args.height, args.Augmentation),
-        augmentations=args.augmentation
-    )
+    if args.dataset == 'fusion':
+        # Create subsets for each band using the same indices
+        train_ds = {
+            'b10': Subset(dataset['b10'], X_train),
+            'b11': Subset(dataset['b11'], X_train),
+            'b6': Subset(dataset['b6'], X_train),
+            'b7': Subset(dataset['b7'], X_train),
+            'b76': Subset(dataset['b76'], X_train)
+        }
 
-    val_dataset = DataRetrieve(
-        val_ds,
-        transforms=val_transforms(args.width, args.height)
-    )
+        val_ds = {
+            'b10': Subset(dataset['b10'], X_val),
+            'b11': Subset(dataset['b11'], X_val),
+            'b6': Subset(dataset['b6'], X_val),
+            'b7': Subset(dataset['b7'], X_val),
+            'b76': Subset(dataset['b76'], X_val)
+        }
 
-    test_dataset = DataRetrieve(
-        test_ds,
-        transforms=test_transforms(args.width, args.height)
-    )
+        test_ds = {
+            'b10': Subset(dataset['b10'], X_test),
+            'b11': Subset(dataset['b11'], X_test),
+            'b6': Subset(dataset['b6'], X_test),
+            'b7': Subset(dataset['b7'], X_test),
+            'b76': Subset(dataset['b76'], X_test)
+        }
+
+    else:
+        train_ds = Subset(dataset, X_train)
+        val_ds = Subset(dataset, X_val)
+        test_ds = Subset(dataset, X_test)
+        filepaths = np.array(tuple(zip(*dataset.imgs))[0])
+        train_filepaths = filepaths[X_train]
+        val_filepaths = filepaths[X_val]
+        test_filepaths = filepaths[X_test]
+
+        # Create train, validation and test datasets
+        train_dataset = DataRetrieve(
+            train_ds,
+            transforms=train_transforms(args.width, args.height, args.Augmentation),
+            augmentations=args.augmentation
+        )
+
+        val_dataset = DataRetrieve(
+            val_ds,
+            transforms=val_transforms(args.width, args.height)
+        )
+
+        test_dataset = DataRetrieve(
+            test_ds,
+            transforms=test_transforms(args.width, args.height)
+        )
     # Create train, validation and test dataloaders
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
