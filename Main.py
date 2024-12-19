@@ -109,9 +109,11 @@ def main():
 
     # Get labels
     labels = dataset.classes
+    print(f"labels: {labels}")
 
     num_classes = len(labels)
     y = dataset.targets
+    print(f"y: {y}")
 
     dataset_len = len(dataset)
 
