@@ -63,8 +63,19 @@ def database(data):
         dataset = ImageFolder("Sat_Data_b6")
     elif data == 'b7':
         dataset = ImageFolder("Sat_Data_b7")
-    else:
+    elif data == 'b76':
         dataset = ImageFolder("Sat_Data_b76")
+    elif data == 'fusion':
+        # Load each dataset separately; fusion happens at the model level
+        dataset = {
+            'b10': ImageFolder("Sat_Data_b10"),
+            'b11': ImageFolder("Sat_Data_b11"),
+            'b6': ImageFolder("Sat_Data_b6"),
+            'b7': ImageFolder("Sat_Data_b7"),
+            'b76': ImageFolder("Sat_Data_b76")
+        }
+    else:
+        raise ValueError(f"Unknown dataset type: {data}")
     return dataset
 
 
