@@ -113,7 +113,7 @@ def main():
 
     num_classes = len(labels)
     y = dataset.targets
-    print(f"y: {y}")
+    print(f"y: {len(y)}")
 
     dataset_len = len(dataset)
 
