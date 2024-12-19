@@ -112,9 +112,30 @@ def main():
         labels = dataset['b10'].classes
     else:
         labels = dataset.classes
-        
+
     num_classes = len(labels)
-    y = dataset.targets
+    # If using fusion, handle the datasets separately
+    if args.dataset == 'fusion':
+        # Assuming each dataset in the 'fusion' dictionary has the same target labels
+        dataset_b10 = dataset['b10']
+        dataset_b11 = dataset['b11']
+        dataset_b6 = dataset['b6']
+        dataset_b7 = dataset['b7']
+        dataset_b76 = dataset['b76']
+
+        # Concatenate all the targets (this depends on how you want to handle them, here we concatenate)
+        targets_b10 = dataset_b10.targets
+        targets_b11 = dataset_b11.targets
+        targets_b6 = dataset_b6.targets
+        targets_b7 = dataset_b7.targets
+        targets_b76 = dataset_b76.targets
+
+        # Concatenate or otherwise process targets
+        y = np.concatenate([targets_b10, targets_b11, targets_b6, targets_b7, targets_b76])
+    else:
+        # Regular dataset handling for non-fusion cases
+        y = dataset.targets
+    # y = dataset.targets
     dataset_len = len(dataset)
 
     # Stratify split data
