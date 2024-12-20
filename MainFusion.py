@@ -97,14 +97,16 @@ def loss_fun(class_weight):
 
 
 def custom_collate_fn(batch):
+    resize = transforms.Resize((256, 256))
+
     # Process each item in the batch individually
     images, labels = zip(*batch)
 
-    # Convert list of PIL images to tensors
-    images = [transforms.ToTensor()(image) for image in images]
+    images = [resize(image) for image in images]
 
-    # Stack all the images and labells into tensors
-    images = torch.stack(images, dim=0)
+    # Convert list of PIL images to tensors
+    # Stack all the images and labels into tensors
+    images = torch.stack([transforms.ToTensor()(image) for image in images], dim=0)
     labels = torch.tensor(labels)
 
     return images, labels
