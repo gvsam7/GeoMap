@@ -5,7 +5,6 @@ import numpy as np
 from sklearn import decomposition, manifold
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from torchvision import transforms
-from PIL import Image
 
 
 def parameters(model):
@@ -25,48 +24,16 @@ def get_predictions(model, iterator, device):
 
     with torch.no_grad():
         for data, targets in iterator:
-            # Check if `data` is a PIL image and convert it to tensor if necessary
-            if isinstance(data, Image.Image):  # Check if it's a PIL Image
-                data = to_tensor(data)
+            data = data.to(device=device)
+            y_pred = model(data)
 
-            # Ensure data is a tensor
-            if isinstance(data, torch.Tensor):
-                # Split data into branches
-                b10_data = data.clone()
-                b11_data = data.clone()
-                b7_data = data.clone()
-                b6_data = data.clone()
-                b76_data = data.clone()
-
-                # Create the inputs dictionary for the model
-                inputs = {
-                    'b10': b10_data,
-                    'b11': b11_data,
-                    'b7': b7_data,
-                    'b6': b6_data,
-                    'b76': b76_data,
-                }
-
-            # Send the data to the device (GPU/CPU)
-            inputs = {key: value.to(device) for key, value in inputs.items()}
-            # targets = targets.to(device)
-
-            # data = data.to(device=device)
-
-            # Get model predictions
-            # y_pred = model(data)
-            y_pred = model(inputs)
-
-            # Get probabilities (softmax output)
             y_prob = F.softmax(y_pred, dim=-1)
             top_pred = y_prob.argmax(1, keepdim=True)
 
-            # Collect data, targets, and probabilities for later analysis
             images.append(data.cpu())
             labels.append(targets.cpu())
             probs.append(y_prob.cpu())
 
-    # After the loop, concatenate the lists into tensors
     images = torch.cat(images, dim=0)
     labels = torch.cat(labels, dim=0)
     probs = torch.cat(probs, dim=0)
