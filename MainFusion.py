@@ -333,21 +333,59 @@ def main():
                 save_checkpoint(checkpoint)
 
         # Evaluate Network
-        model.eval()
+        model.eval()  # Set the model to evaluation mode
         sum_acc = 0
-        for dataset_key, dataset in datasets.items():
-            # Create DataLoader for each dataset
-            val_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False)
+        total_batches = 0  # To correctly average over all validation batches
 
-            for data, targets in val_loader:
-                data = data.to(device=device)
-                targets = targets.to(device=device)
-                val_acc, val_loss = step(data, targets, model=model, optimizer=optimizer, criterion=criterion,
-                                         train=False)
-                sum_acc += val_acc
+        with torch.no_grad():  # Disable gradient computation for validation
+            for dataset_key, dataset in datasets.items():
+                # Create DataLoader for each dataset
+                val_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False)
 
-        val_avg_acc = sum_acc / len(val_loader)  # Similar to training accuracy, adjust this for multiple datasets
-        # scheduler.step(val_avg_acc)
+                for data, targets in val_loader:
+                    # Debug print to check data types
+                    print(f"Validation Data type: {type(data)}, Targets type: {type(targets)}")
+
+                    # Ensure `data` is a dictionary with the required keys
+                    # if isinstance(data, dict) and all(key in data for key in ['b10', 'b11', 'b7', 'b6', 'b76']):
+                    # Extract individual branches from the data
+                    b10_data = data['b10']
+                    b11_data = data['b11']
+                    b7_data = data['b7']
+                    b6_data = data['b6']
+                    b76_data = data['b76']
+                    # else:
+                    #     raise TypeError("Expected `data` to be a dictionary with keys 'b10', 'b11', 'b7', 'b6', 'b76'")
+
+                    # Create the `inputs` dictionary
+                    inputs = {
+                        'b10': b10_data,
+                        'b11': b11_data,
+                        'b7': b7_data,
+                        'b6': b6_data,
+                        'b76': b76_data,
+                    }
+
+                    # Debug print to verify the structure of `inputs`
+                    print(f"Validation Inputs keys: {inputs.keys()}")
+                    print(f"Validation b10 data shape: {inputs['b10'].shape}")
+
+                    # Send data to the device (GPU/CPU)
+                    inputs = {key: value.to(device) for key, value in inputs.items()}
+                    targets = targets.to(device)
+
+                    # Calculate validation metrics (e.g., accuracy, loss)
+                    acc, loss = step(inputs, targets, model=model, criterion=criterion, train=False)
+
+                    # Print the validation results for each batch
+                    print(f"Validation Accuracy: {acc:.4f}, Validation Loss: {loss:.4f}")
+
+                    # Accumulate accuracy across batches
+                    sum_acc += acc
+                    total_batches += 1
+
+        # Calculate average validation accuracy across all datasets
+        val_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
 
         print(
             f"Epoch: {epoch + 1} \tTraining accuracy: {train_avg_acc:.2f} \n\t\tValidation accuracy: {val_avg_acc:.2f}")
