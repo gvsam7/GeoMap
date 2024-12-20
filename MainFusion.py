@@ -349,11 +349,11 @@ def main():
                     # Ensure `data` is a dictionary with the required keys
                     # if isinstance(data, dict) and all(key in data for key in ['b10', 'b11', 'b7', 'b6', 'b76']):
                     # Extract individual branches from the data
-                    b10_data = data['b10']
-                    b11_data = data['b11']
-                    b7_data = data['b7']
-                    b6_data = data['b6']
-                    b76_data = data['b76']
+                    b10_data = data
+                    b11_data = data
+                    b7_data = data
+                    b6_data = data
+                    b76_data = data
                     # else:
                     #     raise TypeError("Expected `data` to be a dictionary with keys 'b10', 'b11', 'b7', 'b6', 'b76'")
 
