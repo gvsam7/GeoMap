@@ -283,14 +283,14 @@ def main():
                 # targets = targets.to(device=device)
 
                 # Split the data according to the branches, assuming you have 5 different inputs
-                if isinstance(data, dict):
-                    b10_data = data  # Replace with the actual data for b10 if it is different
-                    b11_data = data  # Replace with the actual data for b11 if it is different
-                    b7_data = data  # Replace with the actual data for b7 if it is different
-                    b6_data = data  # Replace with the actual data for b6 if it is different
-                    b76_data = data  # Replace with the actual data for b76 if it is different
-                else:
-                    raise TypeError("Expected data to be dictionary with keys 'b10', 'b11', 'b7', 'b6', 'b76'")
+                # if isinstance(data, dict):
+                b10_data = data  # Replace with the actual data for b10 if it is different
+                b11_data = data  # Replace with the actual data for b11 if it is different
+                b7_data = data  # Replace with the actual data for b7 if it is different
+                b6_data = data  # Replace with the actual data for b6 if it is different
+                b76_data = data  # Replace with the actual data for b76 if it is different
+                # else:
+                #     raise TypeError("Expected data to be dictionary with keys 'b10', 'b11', 'b7', 'b6', 'b76'")
                 # Assuming `data` needs to be split into branches
                 inputs = {
                     'b10': b10_data,  # Replace with the actual data for 'b10'
