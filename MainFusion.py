@@ -247,11 +247,11 @@ def main():
 
                 # Assuming `data` needs to be split into branches
                 inputs = {
-                    'b10': b10_data,  # Replace with the actual data for 'b10'
-                    'b11': b11_data,  # Replace with the actual data for 'b11'
-                    'b7': b7_data,  # Replace with the actual data for 'b7'
-                    'b6': b6_data,  # Replace with the actual data for 'b6'
-                    'b76': b76_data,  # Replace with the actual data for 'b76'
+                    'b10': b10_data,
+                    'b11': b11_data,
+                    'b7': b7_data,
+                    'b6': b6_data,
+                    'b76': b76_data,
                 }
 
                 # Send data to the device (GPU/CPU)
@@ -313,7 +313,7 @@ def main():
                     inputs = {key: value.to(device) for key, value in inputs.items()}
                     targets = targets.to(device)
 
-                    # Calculate validation metrics (e.g., accuracy, loss)
+                    # Calculate validation metrics (e.g. accuracy, loss)
                     acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=False)
 
                     # Accumulate accuracy across batches
@@ -331,10 +331,10 @@ def main():
 
     # After training, get predictions
     prediction_loader = DataLoader(test_dataset, batch_size=args.batch_size, collate_fn=custom_collate_fn)
-    # train_preds = get_all_preds(model, loader=prediction_loader, device=device)
-    print(f"Train predictions shape: {prediction_loader.shape}")
-    print(f"The label the network predicts strongly: {prediction_loader.argmax(dim=1)}")
-    predictions = prediction_loader.argmax(dim=1)
+    train_preds = get_all_preds(model, loader=prediction_loader, device=device)
+    print(f"Train predictions shape: {train_preds.shape}")
+    print(f"The label the network predicts strongly: {train_preds.argmax(dim=1)}")
+    predictions = train_preds.argmax(dim=1)
 
     # Most Confident Incorrect Predictions
     # Iterate through each dataset to get predictions and other metrics
