@@ -283,11 +283,11 @@ def main():
                 # targets = targets.to(device=device)
 
                 # Split the data according to the branches, assuming you have 5 different inputs
-                b10_data = data  # Replace with the actual data for b10 if it's different
-                b11_data = data  # Replace with the actual data for b11 if it's different
-                b7_data = data  # Replace with the actual data for b7 if it's different
-                b6_data = data  # Replace with the actual data for b6 if it's different
-                b76_data = data  # Replace with the actual data for b76 if it's different
+                b10_data = data['b10']  # Replace with the actual data for b10 if it is different
+                b11_data = data['b11']  # Replace with the actual data for b11 if it is different
+                b7_data = data['b7']  # Replace with the actual data for b7 if it is different
+                b6_data = data['b6']  # Replace with the actual data for b6 if it is different
+                b76_data = data['b76']  # Replace with the actual data for b76 if it is different
 
                 # Assuming `data` needs to be split into branches
                 inputs = {
