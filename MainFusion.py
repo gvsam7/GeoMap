@@ -127,6 +127,17 @@ def main():
     print(f"Labels for b6: {labels_b6}")
     print(f"Labels for b76: {labels_b76}")
 
+    print(f"Type of datasets['b10']: {type(datasets['b10'])}")
+    print(f"Length of datasets['b10']: {len(datasets['b10'])}")
+    print(f"Type of datasets['b11']: {type(datasets['b11'])}")
+    print(f"Length of datasets['b11']: {len(datasets['b11'])}")
+    print(f"Type of datasets['b7']: {type(datasets['b7'])}")
+    print(f"Length of datasets['b7']: {len(datasets['b7'])}")
+    print(f"Type of datasets['b6']: {type(datasets['b6'])}")
+    print(f"Length of datasets['b6']: {len(datasets['b6'])}")
+    print(f"Type of datasets['b76']: {type(datasets['b76'])}")
+    print(f"Length of datasets['b76']: {len(datasets['b76'])}")
+
     # Perform a stratified split for each dataset
     def stratified_split(dataset):
         y = dataset.targets
