@@ -246,6 +246,15 @@ def main():
         model.train()
         sum_acc = 0
         for dataset_key, dataset in datasets.items():
+            print(f"Processing dataset: {dataset_key}")
+            # Debug: Check dataset details
+            print(f"Dataset type: {type(dataset)}")
+            print(f"Number of samples in dataset: {len(dataset)}")
+            print(f"First sample data type: {type(dataset[0][0])}, target type: {type(dataset[0][1])}")
+            if isinstance(dataset[0][0], torch.Tensor):
+                print(f"First sample data shape: {dataset[0][0].shape}")
+            print(f"First sample target: {dataset[0][1]}")
+            
             # Create DataLoader for each dataset
             train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
