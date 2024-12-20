@@ -254,9 +254,11 @@ def main():
             if isinstance(dataset[0][0], torch.Tensor):
                 print(f"First sample data shape: {dataset[0][0].shape}")
             print(f"First sample target: {dataset[0][1]}")
-            
+
+            print("Prior Train Laoder....")
             # Create DataLoader for each dataset
             train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+            print("After Train Loader ...")
 
             for data, targets in train_loader:
                 print(f"Data type: {type(data)}, Targets type: {type(targets)}")
