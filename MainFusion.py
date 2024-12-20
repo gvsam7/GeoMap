@@ -279,21 +279,35 @@ def main():
 
             for data, targets in train_loader:
                 print(f"Data type: {type(data)}, Targets type: {type(targets)}")
-                data = data.to(device=device)
-                targets = targets.to(device=device)
+                # data = data.to(device=device)
+                # targets = targets.to(device=device)
+
+                # Split the data according to the branches, assuming you have 5 different inputs
+                b10_data = data  # Replace with the actual data for b10 if it's different
+                b11_data = data  # Replace with the actual data for b11 if it's different
+                b7_data = data  # Replace with the actual data for b7 if it's different
+                b6_data = data  # Replace with the actual data for b6 if it's different
+                b76_data = data  # Replace with the actual data for b76 if it's different
 
                 # Assuming `data` needs to be split into branches
                 inputs = {
-                    'b10': data,  # Replace with the actual data for 'b10'
-                    'b11': data,  # Replace with the actual data for 'b11'
-                    'b7': data,  # Replace with the actual data for 'b7'
-                    'b6': data,  # Replace with the actual data for 'b6'
-                    'b76': data,  # Replace with the actual data for 'b76'
+                    'b10': b10_data,  # Replace with the actual data for 'b10'
+                    'b11': b11_data,  # Replace with the actual data for 'b11'
+                    'b7': b7_data,  # Replace with the actual data for 'b7'
+                    'b6': b6_data,  # Replace with the actual data for 'b6'
+                    'b76': b76_data,  # Replace with the actual data for 'b76'
                 }
 
                 # Debug print to verify the inputs dictionary
                 print(f"Inputs keys: {inputs.keys()}")
                 print(f"b10 data shape: {inputs['b10'].shape}")
+
+                # Send data to the device (GPU/CPU)
+                inputs = {key: value.to(device) for key, value in inputs.items()}
+                targets = targets.to(device)
+
+                # Now, pass the inputs to the model
+                outputs = model(inputs)
 
                 if args.augmentation == "cutmix":
                     # Implement cutmix augmentation
