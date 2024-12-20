@@ -3,7 +3,9 @@ Author: Georgios Voulgaris
 Date:   20/12/2024
 Description:    Apply Deep Learning techniques, to map cement factories in China and monitor the pollution. Classify
                 cement factories using satellite images. In more detail, LandSat band 10 (B10) Thermal infrared (TIRS) 1
-                (10.6-11.19 micrometers wavelength) and band 11 Thermal infrared (TIRS) 2 (11.50-12.51 micrometers)
+                (10.6-11.19 micrometers wavelength), band 11 Thermal infrared (TIRS) 2 (11.50-12.51 micrometers), band 7
+                Short Wave Infrared (SWI) 1 (2.11-2.29 micrometers), band 6 Short Wave Infrared (SWI) 2
+                (1.57-1.65 micrometers), and a ration of bands7:6 Short Wave Infrared (SWI) (1.34 and 1.39 micrometers)
                 images were extracted from the Satellites and used to train various Deep Learning architectures to
                 classify the cement plants and the surrounding land cover. The addition of this code allows to train
                 data fusion models.
@@ -219,6 +221,7 @@ def main():
             train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
 
             for data, targets in train_loader:
+                print(f"Data type: {type(data)}, Targets type: {type(targets)}")
                 data = data.to(device=device)
                 targets = targets.to(device=device)
 
