@@ -340,7 +340,7 @@ def main():
         with torch.no_grad():  # Disable gradient computation for validation
             for dataset_key, dataset in datasets.items():
                 # Create DataLoader for each dataset
-                val_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False)
+                val_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
                 for data, targets in val_loader:
                     # Debug print to check data types
