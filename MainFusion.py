@@ -30,6 +30,7 @@ from pandas import DataFrame
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support as score
 from sklearn.metrics import accuracy_score
+from torchvision import transforms
 import wandb
 
 
@@ -93,6 +94,20 @@ def loss_fun(class_weight):
         criterion = nn.CrossEntropyLoss()
     print(f"Class weight: {class_weight}")
     return criterion
+
+
+def custom_collate_fn(batch):
+    # Process each item in the batch individually
+    images, labels = zip(*batch)
+
+    # Convert list of PIL images to tensors
+    images = [transforms.ToTensor()(image) for image in images]
+
+    # Stack all the images and labells into tensors
+    images = torch.stack(images, dim=0)
+    labels = torch.tensor(labels)
+
+    return images, labels
 
 
 def main():
@@ -212,9 +227,9 @@ def main():
     print(f"First test sample target type: {type(sample_target)}")
 
     # Create train, validation, and test dataloaders
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
-    prediction_loader = DataLoader(test_dataset, batch_size=args.batch_size)
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
+    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
+    prediction_loader = DataLoader(test_dataset, batch_size=args.batch_size, collate_fn=custom_collate_fn)
 
 
     # Network
@@ -257,7 +272,7 @@ def main():
 
             print("Prior Train Laoder....")
             # Create DataLoader for each dataset
-            train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+            train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
             print("After Train Loader ...")
 
             for data, targets in train_loader:
