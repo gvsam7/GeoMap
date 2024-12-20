@@ -272,7 +272,7 @@ def main():
                 print(f"First sample data shape: {dataset[0][0].shape}")
             print(f"First sample target: {dataset[0][1]}")
 
-            print("Prior Train Laoder....")
+            print("Prior Train Loader....")
             # Create DataLoader for each dataset
             train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
             print("After Train Loader ...")
@@ -283,12 +283,14 @@ def main():
                 # targets = targets.to(device=device)
 
                 # Split the data according to the branches, assuming you have 5 different inputs
-                b10_data = data['b10']  # Replace with the actual data for b10 if it is different
-                b11_data = data['b11']  # Replace with the actual data for b11 if it is different
-                b7_data = data['b7']  # Replace with the actual data for b7 if it is different
-                b6_data = data['b6']  # Replace with the actual data for b6 if it is different
-                b76_data = data['b76']  # Replace with the actual data for b76 if it is different
-
+                if isinstance(data, dict):
+                    b10_data = data['b10']  # Replace with the actual data for b10 if it is different
+                    b11_data = data['b11']  # Replace with the actual data for b11 if it is different
+                    b7_data = data['b7']  # Replace with the actual data for b7 if it is different
+                    b6_data = data['b6']  # Replace with the actual data for b6 if it is different
+                    b76_data = data['b76']  # Replace with the actual data for b76 if it is different
+                else:
+                    raise TypeError("Expected data to be dictionary with keys 'b10', 'b11', 'b7', 'b6', 'b76'")
                 # Assuming `data` needs to be split into branches
                 inputs = {
                     'b10': b10_data,  # Replace with the actual data for 'b10'
