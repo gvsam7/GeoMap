@@ -12,8 +12,13 @@ class FusionNet(nn.Module):
         self.b6_CNN = CNN5(in_channels, num_classes)
         self.b76_CNN = CNN5(in_channels, num_classes)
 
+        # Dynamically calculate the output feature size for the fully connected layer
+        dummy_input = torch.zeros(1, in_channels, 256, 256)  # Adjust input size as per your data
+        dummy_output = self.b10_CNN(dummy_input)
+        cnn_out_features = dummy_output.shape[1]  # Get the output feature size after CNN layers
+
         # Fully connected layers for fusion
-        cnn_out_features = self.b10_CNN.classifier[0].in_features  # Access first Linear layer's input features
+        # cnn_out_features = self.b10_CNN.classifier[0].in_features  # Access first Linear layer's input features
         self.fc = nn.Sequential(
             nn.Linear(5 * cnn_out_features, 512),  # Combine features from all backbones
             nn.ReLU(),
@@ -29,9 +34,21 @@ class FusionNet(nn.Module):
         b6_out = self.b6_CNN(inputs['b6'])
         b76_out = self.b76_CNN(inputs['b76'])
 
+        # Print the shape of the output for each branch
+        print(f"b10_out shape: {b10_out.shape}")
+        print(f"b11_out shape: {b11_out.shape}")
+        print(f"b7_out shape: {b7_out.shape}")
+        print(f"b6_out shape: {b6_out.shape}")
+        print(f"b76_out shape: {b76_out.shape}")
+
         # Concatenate the outputs
         fused_features = torch.cat((b10_out, b11_out, b7_out, b6_out, b76_out), dim=1)
+        # Print the shape of the fused features
+        print(f"Fused features shape: {fused_features.shape}")
 
         # Final classification
         output = self.fc(fused_features)
+        # Print the final output shape
+        print(f"Output shape: {output.shape}")
+        
         return output
