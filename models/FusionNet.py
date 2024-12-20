@@ -30,21 +30,10 @@ class FusionNet(nn.Module):
         b6_out = self.b6_CNN(inputs['b6'])
         b76_out = self.b76_CNN(inputs['b76'])
 
-        # Print the shape of the output for each branch
-        print(f"b10_out shape: {b10_out.shape}")
-        print(f"b11_out shape: {b11_out.shape}")
-        print(f"b7_out shape: {b7_out.shape}")
-        print(f"b6_out shape: {b6_out.shape}")
-        print(f"b76_out shape: {b76_out.shape}")
-
         # Concatenate the outputs
         fused_features = torch.cat((b10_out, b11_out, b7_out, b6_out, b76_out), dim=1)
-        # Print the shape of the fused features
-        print(f"Fused features shape: {fused_features.shape}")
 
         # Final classification
         output = self.fc(fused_features)
-        # Print the final output shape
-        print(f"Output shape: {output.shape}")
-
+        
         return output

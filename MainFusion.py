@@ -102,11 +102,15 @@ def custom_collate_fn(batch):
     # Process each item in the batch individually
     images, labels = zip(*batch)
 
-    images = [resize(image) for image in images]
+    # Check if images are already tensors
+    if isinstance(images[0], torch.Tensor):
+        # If tensors, stack them directly
+        images = torch.stack(images, dim=0)
+    else:
+        # If not tensors, resize and convert to tensors
+        images = torch.stack([transforms.ToTensor()(resize(image)) for image in images], dim=0)
 
-    # Convert list of PIL images to tensors
-    # Stack all the images and labels into tensors
-    images = torch.stack([transforms.ToTensor()(image) for image in images], dim=0)
+    # Convert labels to a tensor
     labels = torch.tensor(labels)
 
     return images, labels
@@ -138,22 +142,6 @@ def main():
     labels_b7 = datasets['b7'].classes
     labels_b6 = datasets['b6'].classes
     labels_b76 = datasets['b76'].classes
-    print(f"Labels for b10: {labels_b10}")
-    print(f"Labels for b11: {labels_b11}")
-    print(f"Labels for b7: {labels_b7}")
-    print(f"Labels for b6: {labels_b6}")
-    print(f"Labels for b76: {labels_b76}")
-
-    print(f"Type of datasets['b10']: {type(datasets['b10'])}")
-    print(f"Length of datasets['b10']: {len(datasets['b10'])}")
-    print(f"Type of datasets['b11']: {type(datasets['b11'])}")
-    print(f"Length of datasets['b11']: {len(datasets['b11'])}")
-    print(f"Type of datasets['b7']: {type(datasets['b7'])}")
-    print(f"Length of datasets['b7']: {len(datasets['b7'])}")
-    print(f"Type of datasets['b6']: {type(datasets['b6'])}")
-    print(f"Length of datasets['b6']: {len(datasets['b6'])}")
-    print(f"Type of datasets['b76']: {type(datasets['b76'])}")
-    print(f"Length of datasets['b76']: {len(datasets['b76'])}")
 
     # Perform a stratified split for each dataset
     def stratified_split(dataset):
@@ -199,34 +187,16 @@ def main():
         transforms=train_transforms(args.width, args.height, args.Augmentation),
         augmentations=args.augmentation
     )
-    print(f"Train dataset type: {type(train_dataset)}")
-    print(f"Number of training samples: {len(train_dataset)}")
-    # Checking the first sample
-    sample_data, sample_target = train_dataset[0]
-    print(f"First training sample data type: {type(sample_data)}")
-    print(f"First training sample target type: {type(sample_target)}")
 
     val_dataset = DataRetrieve(
         val_ds_b10 + val_ds_b11 + val_ds_b7 + val_ds_b6 + val_ds_b76,
         transforms=val_transforms(args.width, args.height)
     )
-    print(f"Validation dataset type: {type(val_dataset)}")
-    print(f"Number of validation samples: {len(val_dataset)}")
-    # Checking the first sample
-    sample_data, sample_target = val_dataset[0]
-    print(f"First validation sample data type: {type(sample_data)}")
-    print(f"First validation sample target type: {type(sample_target)}")
 
     test_dataset = DataRetrieve(
         test_ds_b10 + test_ds_b11 + test_ds_b7 + test_ds_b6 + test_ds_b76,
         transforms=test_transforms(args.width, args.height)
     )
-    print(f"Test dataset type: {type(test_dataset)}")
-    print(f"Number of test samples: {len(test_dataset)}")
-    # Checking the first sample
-    sample_data, sample_target = test_dataset[0]
-    print(f"First test sample data type: {type(sample_data)}")
-    print(f"First test sample target type: {type(sample_target)}")
 
     # Create train, validation, and test dataloaders
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
@@ -263,34 +233,17 @@ def main():
         model.train()
         sum_acc = 0
         for dataset_key, dataset in datasets.items():
-            print(f"Processing dataset: {dataset_key}")
-            # Debug: Check dataset details
-            print(f"Dataset type: {type(dataset)}")
-            print(f"Number of samples in dataset: {len(dataset)}")
-            print(f"First sample data type: {type(dataset[0][0])}, target type: {type(dataset[0][1])}")
-            if isinstance(dataset[0][0], torch.Tensor):
-                print(f"First sample data shape: {dataset[0][0].shape}")
-            print(f"First sample target: {dataset[0][1]}")
-
-            print("Prior Train Loader....")
             # Create DataLoader for each dataset
             train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
-            print("After Train Loader ...")
 
             for data, targets in train_loader:
-                print(f"Data type: {type(data)}, Targets type: {type(targets)}")
-                # data = data.to(device=device)
-                # targets = targets.to(device=device)
-
                 # Split the data according to the branches, assuming you have 5 different inputs
-                # if isinstance(data, dict):
-                b10_data = data  # Replace with the actual data for b10 if it is different
-                b11_data = data  # Replace with the actual data for b11 if it is different
-                b7_data = data  # Replace with the actual data for b7 if it is different
-                b6_data = data  # Replace with the actual data for b6 if it is different
-                b76_data = data  # Replace with the actual data for b76 if it is different
-                # else:
-                #     raise TypeError("Expected data to be dictionary with keys 'b10', 'b11', 'b7', 'b6', 'b76'")
+                b10_data = data
+                b11_data = data
+                b7_data = data
+                b6_data = data
+                b76_data = data
+
                 # Assuming `data` needs to be split into branches
                 inputs = {
                     'b10': b10_data,  # Replace with the actual data for 'b10'
@@ -299,10 +252,6 @@ def main():
                     'b6': b6_data,  # Replace with the actual data for 'b6'
                     'b76': b76_data,  # Replace with the actual data for 'b76'
                 }
-
-                # Debug print to verify the inputs dictionary
-                print(f"Inputs keys: {inputs.keys()}")
-                print(f"b10 data shape: {inputs['b10'].shape}")
 
                 # Send data to the device (GPU/CPU)
                 inputs = {key: value.to(device) for key, value in inputs.items()}
@@ -318,8 +267,7 @@ def main():
                     acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
                     sum_acc += acc
 
-        train_avg_acc = sum_acc / len(
-            train_loader)  # You may need to calculate the correct length based on multiple datasets
+        train_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
         # optimizer.step()
         # scheduler.step(train_avg_acc)
 
@@ -346,16 +294,12 @@ def main():
                     # Debug print to check data types
                     print(f"Validation Data type: {type(data)}, Targets type: {type(targets)}")
 
-                    # Ensure `data` is a dictionary with the required keys
-                    # if isinstance(data, dict) and all(key in data for key in ['b10', 'b11', 'b7', 'b6', 'b76']):
                     # Extract individual branches from the data
                     b10_data = data
                     b11_data = data
                     b7_data = data
                     b6_data = data
                     b76_data = data
-                    # else:
-                    #     raise TypeError("Expected `data` to be a dictionary with keys 'b10', 'b11', 'b7', 'b6', 'b76'")
 
                     # Create the `inputs` dictionary
                     inputs = {
@@ -365,10 +309,6 @@ def main():
                         'b6': b6_data,
                         'b76': b76_data,
                     }
-
-                    # Debug print to verify the structure of `inputs`
-                    print(f"Validation Inputs keys: {inputs.keys()}")
-                    print(f"Validation b10 data shape: {inputs['b10'].shape}")
 
                     # Send data to the device (GPU/CPU)
                     inputs = {key: value.to(device) for key, value in inputs.items()}
