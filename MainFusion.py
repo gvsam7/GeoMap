@@ -232,6 +232,7 @@ def main():
     for epoch in range(args.epochs):
         model.train()
         sum_acc = 0
+        total_batches = 0
         for dataset_key, dataset in datasets.items():
             # Create DataLoader for each dataset
             train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
