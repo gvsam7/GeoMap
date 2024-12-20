@@ -49,7 +49,7 @@ def get_predictions(model, iterator, device):
 
             # Send the data to the device (GPU/CPU)
             inputs = {key: value.to(device) for key, value in inputs.items()}
-            targets = targets.to(device)
+            # targets = targets.to(device)
 
             # data = data.to(device=device)
 
