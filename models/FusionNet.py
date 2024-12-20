@@ -23,7 +23,6 @@ class FusionNet(nn.Module):
 
     def forward(self, inputs):
         # Process each input branch through its respective CNN
-        print(f"Input keys: {inputs.keys()}, Input['b10'] type: {type(inputs['b10'])}")
         b10_out = self.b10_CNN(inputs['b10'])
         b11_out = self.b11_CNN(inputs['b11'])
         b7_out = self.b7_CNN(inputs['b7'])
