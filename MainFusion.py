@@ -375,7 +375,7 @@ def main():
                     targets = targets.to(device)
 
                     # Calculate validation metrics (e.g., accuracy, loss)
-                    acc, loss = step(inputs, targets, model=model, criterion=criterion, train=False)
+                    acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=False)
 
                     # Print the validation results for each batch
                     print(f"Validation Accuracy: {acc:.4f}, Validation Loss: {loss:.4f}")
