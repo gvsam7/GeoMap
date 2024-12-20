@@ -293,9 +293,6 @@ def main():
                 val_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
                 for data, targets in val_loader:
-                    # Debug print to check data types
-                    print(f"Validation Data type: {type(data)}, Targets type: {type(targets)}")
-
                     # Extract individual branches from the data
                     b10_data = data
                     b11_data = data
@@ -319,9 +316,6 @@ def main():
                     # Calculate validation metrics (e.g., accuracy, loss)
                     acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=False)
 
-                    # Print the validation results for each batch
-                    print(f"Validation Accuracy: {acc:.4f}, Validation Loss: {loss:.4f}")
-
                     # Accumulate accuracy across batches
                     sum_acc += acc
                     total_batches += 1
@@ -336,10 +330,11 @@ def main():
         wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
 
     # After training, get predictions
-    train_preds = get_all_preds(model, loader=prediction_loader, device=device)
-    print(f"Train predictions shape: {train_preds.shape}")
-    print(f"The label the network predicts strongly: {train_preds.argmax(dim=1)}")
-    predictions = train_preds.argmax(dim=1)
+    prediction_loader = DataLoader(test_dataset, batch_size=args.batch_size, collate_fn=custom_collate_fn)
+    # train_preds = get_all_preds(model, loader=prediction_loader, device=device)
+    print(f"Train predictions shape: {prediction_loader.shape}")
+    print(f"The label the network predicts strongly: {prediction_loader.argmax(dim=1)}")
+    predictions = prediction_loader.argmax(dim=1)
 
     # Most Confident Incorrect Predictions
     # Iterate through each dataset to get predictions and other metrics
