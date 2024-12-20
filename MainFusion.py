@@ -182,16 +182,34 @@ def main():
         transforms=train_transforms(args.width, args.height, args.Augmentation),
         augmentations=args.augmentation
     )
+    print(f"Train dataset type: {type(train_dataset)}")
+    print(f"Number of training samples: {len(train_dataset)}")
+    # Checking the first sample
+    sample_data, sample_target = train_dataset[0]
+    print(f"First training sample data type: {type(sample_data)}")
+    print(f"First training sample target type: {type(sample_target)}")
 
     val_dataset = DataRetrieve(
         val_ds_b10 + val_ds_b11 + val_ds_b7 + val_ds_b6 + val_ds_b76,
         transforms=val_transforms(args.width, args.height)
     )
+    print(f"Validation dataset type: {type(val_dataset)}")
+    print(f"Number of validation samples: {len(val_dataset)}")
+    # Checking the first sample
+    sample_data, sample_target = val_dataset[0]
+    print(f"First validation sample data type: {type(sample_data)}")
+    print(f"First validation sample target type: {type(sample_target)}")
 
     test_dataset = DataRetrieve(
         test_ds_b10 + test_ds_b11 + test_ds_b7 + test_ds_b6 + test_ds_b76,
         transforms=test_transforms(args.width, args.height)
     )
+    print(f"Test dataset type: {type(test_dataset)}")
+    print(f"Number of test samples: {len(test_dataset)}")
+    # Checking the first sample
+    sample_data, sample_target = test_dataset[0]
+    print(f"First test sample data type: {type(sample_data)}")
+    print(f"First test sample target type: {type(sample_target)}")
 
     # Create train, validation, and test dataloaders
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
