@@ -329,12 +329,55 @@ def main():
         train_steps = len(train_loader) * (epoch + 1)
         wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
 
+    # Predictions
+    # Initialise a list to store predictions
+    all_preds = []
+
+    # Set the model to evaluation mode
+    model.eval()
+
+    with torch.no_grad():  # Disable gradient calculation during inference
+        for data, targets in prediction_loader:
+            # Ensure the data is properly split into branches, similar to train and validation
+            b10_data = data.clone()  # Assuming `data` needs to be split into 5 branches
+            b11_data = data.clone()
+            b7_data = data.clone()
+            b6_data = data.clone()
+            b76_data = data.clone()
+
+            # Create the inputs dictionary for the model
+            inputs = {
+                'b10': b10_data,
+                'b11': b11_data,
+                'b7': b7_data,
+                'b6': b6_data,
+                'b76': b76_data,
+            }
+
+            # Send the data to the device (GPU/CPU)
+            inputs = {key: value.to(device) for key, value in inputs.items()}
+
+            # Pass the data through the model
+            preds = model(inputs)  # Assuming the model returns predictions
+
+            # Collect the predictions for later analysis
+            all_preds.append(preds)
+
+    # After the loop, convert the predictions to a tensor
+    train_preds = torch.cat(all_preds, dim=0)  # Assuming you want to concatenate along the first dimension
+
+    print(f"Train predictions shape: {train_preds.shape}")
+    print(f"The label the network predicts strongly: {train_preds.argmax(dim=1)}")
+
+    # Get the final predicted class labels
+    predictions = train_preds.argmax(dim=1)
+    """
     # After training, get predictions
-    prediction_loader = DataLoader(test_dataset, batch_size=args.batch_size, collate_fn=custom_collate_fn)
+    # prediction_loader = DataLoader(test_dataset, batch_size=args.batch_size, collate_fn=custom_collate_fn)
     train_preds = get_all_preds(model, loader=prediction_loader, device=device)
     print(f"Train predictions shape: {train_preds.shape}")
     print(f"The label the network predicts strongly: {train_preds.argmax(dim=1)}")
-    predictions = train_preds.argmax(dim=1)
+    predictions = train_preds.argmax(dim=1)"""
 
     # Most Confident Incorrect Predictions
     # Iterate through each dataset to get predictions and other metrics
@@ -420,103 +463,3 @@ if __name__ == "__main__":
     main()
 
 
-"""
-args = arguments()
-    wandb.init(project="PlantPollution", config=args)
-
-    # Set device
-    if torch.cuda.is_available():
-        device = torch.device(f"cuda:{args.device}")  # Can continue going on here, like cuda:1 cuda:2....etc.
-        print("Running on the GPU")
-    else:
-        device = torch.device("cpu")
-        print("Running on the CPU")
-
-    # Load data
-    dataset = database(args.dataset)
-    print(f"Dataset is {args.dataset}")
-
-    # Get labels
-    if args.dataset == 'fusion':
-        # Use the 'b10' dataset as a reference to extract class labels
-        labels = dataset['b10'].classes
-    else:
-        labels = dataset.classes
-
-    num_classes = len(labels)
-    # If using fusion, handle the datasets separately
-
-    # Get targets and dataset length
-    if args.dataset == 'fusion':
-        y = dataset['b10'].targets
-    else:
-        # Regular dataset handling for non-fusion cases
-        y = dataset.targets
-    # y = dataset.targets
-
-    dataset_len = len(dataset)
-
-    # Stratify split data
-    X_trainval, X_test, y_trainval, y_test = train_test_split(np.arange(dataset_len), y, test_size=0.2, stratify=y,
-                                                              random_state=args.random_state, shuffle=True)
-    X2 = X_trainval
-    y2 = y_trainval
-    X_train, X_val, y_train, y_val = train_test_split(X2, y2, test_size=0.2, stratify=y2,
-                                                      random_state=args.random_state, shuffle=True)
-
-    if args.dataset == 'fusion':
-        # Create subsets for each band using the same indices
-        train_ds = {
-            'b10': Subset(dataset['b10'], X_train),
-            'b11': Subset(dataset['b11'], X_train),
-            'b6': Subset(dataset['b6'], X_train),
-            'b7': Subset(dataset['b7'], X_train),
-            'b76': Subset(dataset['b76'], X_train)
-        }
-
-        val_ds = {
-            'b10': Subset(dataset['b10'], X_val),
-            'b11': Subset(dataset['b11'], X_val),
-            'b6': Subset(dataset['b6'], X_val),
-            'b7': Subset(dataset['b7'], X_val),
-            'b76': Subset(dataset['b76'], X_val)
-        }
-
-        test_ds = {
-            'b10': Subset(dataset['b10'], X_test),
-            'b11': Subset(dataset['b11'], X_test),
-            'b6': Subset(dataset['b6'], X_test),
-            'b7': Subset(dataset['b7'], X_test),
-            'b76': Subset(dataset['b76'], X_test)
-        }
-
-    else:
-        train_ds = Subset(dataset, X_train)
-        val_ds = Subset(dataset, X_val)
-        test_ds = Subset(dataset, X_test)
-        filepaths = np.array(tuple(zip(*dataset.imgs))[0])
-        train_filepaths = filepaths[X_train]
-        val_filepaths = filepaths[X_val]
-        test_filepaths = filepaths[X_test]
-
-        # Create train, validation and test datasets
-        train_dataset = DataRetrieve(
-            train_ds,
-            transforms=train_transforms(args.width, args.height, args.Augmentation),
-            augmentations=args.augmentation
-        )
-
-        val_dataset = DataRetrieve(
-            val_ds,
-            transforms=val_transforms(args.width, args.height)
-        )
-
-        test_dataset = DataRetrieve(
-            test_ds,
-            transforms=test_transforms(args.width, args.height)
-        )
-    # Create train, validation and test dataloaders
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
-    prediction_loader = DataLoader(test_dataset, batch_size=args.batch_size)
-    """
