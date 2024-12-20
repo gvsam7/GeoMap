@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import decomposition, manifold
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from torchvision import transforms
+from PIL import Image
 
 
 def parameters(model):
@@ -18,18 +20,30 @@ def get_predictions(model, iterator, device):
     labels = []
     probs = []
 
+    # Define a transform to convert data into a tensor if needed
+    to_tensor = transforms.ToTensor()
+
     with torch.no_grad():
         for data, targets in iterator:
+            # Check if `data` is a PIL image and convert it to tensor if necessary
+            if isinstance(data, Image.Image):  # Check if it's a PIL Image
+                data = to_tensor(data)
+
             data = data.to(device=device)
+
+            # Get model predictions
             y_pred = model(data)
 
+            # Get probabilities (softmax output)
             y_prob = F.softmax(y_pred, dim=-1)
             top_pred = y_prob.argmax(1, keepdim=True)
 
+            # Collect data, targets, and probabilities for later analysis
             images.append(data.cpu())
             labels.append(targets.cpu())
             probs.append(y_prob.cpu())
 
+    # After the loop, concatenate the lists into tensors
     images = torch.cat(images, dim=0)
     labels = torch.cat(labels, dim=0)
     probs = torch.cat(probs, dim=0)
