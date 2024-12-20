@@ -29,10 +29,33 @@ def get_predictions(model, iterator, device):
             if isinstance(data, Image.Image):  # Check if it's a PIL Image
                 data = to_tensor(data)
 
-            data = data.to(device=device)
+            # Ensure data is a tensor
+            if isinstance(data, torch.Tensor):
+                # Split data into branches
+                b10_data = data.clone()
+                b11_data = data.clone()
+                b7_data = data.clone()
+                b6_data = data.clone()
+                b76_data = data.clone()
+
+                # Create the inputs dictionary for the model
+                inputs = {
+                    'b10': b10_data,
+                    'b11': b11_data,
+                    'b7': b7_data,
+                    'b6': b6_data,
+                    'b76': b76_data,
+                }
+
+            # Send the data to the device (GPU/CPU)
+            inputs = {key: value.to(device) for key, value in inputs.items()}
+            targets = targets.to(device)
+
+            # data = data.to(device=device)
 
             # Get model predictions
-            y_pred = model(data)
+            # y_pred = model(data)
+            y_pred = model(inputs)
 
             # Get probabilities (softmax output)
             y_prob = F.softmax(y_pred, dim=-1)
