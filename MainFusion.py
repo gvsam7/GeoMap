@@ -282,6 +282,19 @@ def main():
                 data = data.to(device=device)
                 targets = targets.to(device=device)
 
+                # Assuming `data` needs to be split into branches
+                inputs = {
+                    'b10': data,  # Replace with the actual data for 'b10'
+                    'b11': data,  # Replace with the actual data for 'b11'
+                    'b7': data,  # Replace with the actual data for 'b7'
+                    'b6': data,  # Replace with the actual data for 'b6'
+                    'b76': data,  # Replace with the actual data for 'b76'
+                }
+
+                # Debug print to verify the inputs dictionary
+                print(f"Inputs keys: {inputs.keys()}")
+                print(f"b10 data shape: {inputs['b10'].shape}")
+
                 if args.augmentation == "cutmix":
                     # Implement cutmix augmentation
                     pass
