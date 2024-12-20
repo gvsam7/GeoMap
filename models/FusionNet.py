@@ -24,21 +24,21 @@ class FusionNet(nn.Module):
 
     def forward(self, inputs):
         # Process each input branch through its respective CNN
-        b10_out = self.b10_CNN(inputs['b10'])
-        b11_out = self.b11_CNN(inputs['b11'])
-        b7_out = self.b7_CNN(inputs['b7'])
-        b6_out = self.b6_CNN(inputs['b6'])
-        b76_out = self.b76_CNN(inputs['b76'])
+        b10_features, _ = self.b10_CNN(inputs['b10'])
+        b11_features, _ = self.b11_CNN(inputs['b11'])
+        b7_features, _ = self.b7_CNN(inputs['b7'])
+        b6_features, _ = self.b6_CNN(inputs['b6'])
+        b76_features, _ = self.b76_CNN(inputs['b76'])
 
-        # Print the shape of the output for each branch
-        print(f"b10_out shape: {b10_out.shape}")
-        print(f"b11_out shape: {b11_out.shape}")
-        print(f"b7_out shape: {b7_out.shape}")
-        print(f"b6_out shape: {b6_out.shape}")
-        print(f"b76_out shape: {b76_out.shape}")
+        # Print the shape of the features for each branch
+        print(f"b10_features shape: {b10_features.shape}")
+        print(f"b11_features shape: {b11_features.shape}")
+        print(f"b7_features shape: {b7_features.shape}")
+        print(f"b6_features shape: {b6_features.shape}")
+        print(f"b76_features shape: {b76_features.shape}")
 
-        # Concatenate the outputs
-        fused_features = torch.cat((b10_out, b11_out, b7_out, b6_out, b76_out), dim=1)
+        # Concatenate the extracted features
+        fused_features = torch.cat((b10_features, b11_features, b7_features, b6_features, b76_features), dim=1)
         # Print the shape of the fused features
         print(f"Fused features shape: {fused_features.shape}")
 
