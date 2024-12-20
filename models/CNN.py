@@ -16,6 +16,12 @@ class CNN(nn.Module):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
 
+        # Feature extractor
+        self.feature_extractor = nn.Sequential(
+            nn.Linear(512, 512),  # Assuming 512 is the number of output channels from the last conv layer
+            nn.ReLU(inplace=True)
+        )
+
         self.classifier = nn.Sequential(
             nn.Linear(in_linear, num_classes)
         )
@@ -24,8 +30,11 @@ class CNN(nn.Module):
         x = self.features(x)
         x = self.avgpool(x)
         x = x.flatten(1)
-        x = self.classifier(x)
-        return x
+        features = self.feature_extractor(x)  # Feature extraction
+        out = self.classifier(features)  # Classification output
+        # x = self.classifier(x)
+        # return x
+        return features, out
 
     def conv_layers(self, architecture):
         layers = []
