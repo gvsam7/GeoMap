@@ -308,9 +308,6 @@ def main():
                 inputs = {key: value.to(device) for key, value in inputs.items()}
                 targets = targets.to(device)
 
-                # Now, pass the inputs to the model
-                outputs = model(inputs)
-
                 if args.augmentation == "cutmix":
                     # Implement cutmix augmentation
                     pass
@@ -318,7 +315,7 @@ def main():
                     # Implement mixup augmentation
                     pass
                 else:
-                    acc, loss = step(data, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
+                    acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
                     sum_acc += acc
 
         train_avg_acc = sum_acc / len(
