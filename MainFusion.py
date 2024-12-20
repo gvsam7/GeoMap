@@ -266,6 +266,7 @@ def main():
                 else:
                     acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
                     sum_acc += acc
+                    total_batches += 1
 
         train_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
         # optimizer.step()
