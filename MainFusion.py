@@ -332,104 +332,139 @@ def main():
         wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
 
     # Predictions
-    # Initialise lists for predictions and targets per band
-    all_preds = {band: [] for band in ['b10', 'b11', 'b7', 'b6', 'b76']}
-    all_targets = {band: [] for band in ['b10', 'b11', 'b7', 'b6', 'b76']}
+    # Initialise lists for predictions and targets
+    branch_preds = {'b10': [], 'b11': [], 'b7': [], 'b6': [], 'b76': []}
+    branch_targets = {'b10': [], 'b11': [], 'b7': [], 'b6': [], 'b76': []}
+    dataset_metrics = {'b10': {}, 'b11': {}, 'b7': {}, 'b6': {}, 'b76': {}}
 
     # Set the model to evaluation mode
     model.eval()
 
+    # Disable gradient calculations during inference
     with torch.no_grad():
         for data, targets in prediction_loader:
-            # Assuming `data` contains all the bands in one batch
-            # For each band, extract the corresponding data
-            b10_data = data[:, 0, :, :]  # Example for band 10
-            b11_data = data[:, 1, :, :]  # Example for band 11
-            b7_data = data[:, 2, :, :]  # Example for band 7
-            b6_data = data[:, 3, :, :]  # Example for band 6
-            b76_data = data[:, 4, :, :]  # Example for band 76
+            # Assuming `data` needs to be split into 5 branches
+            b10_data = data.clone()
+            b11_data = data.clone()
+            b7_data = data.clone()
+            b6_data = data.clone()
+            b76_data = data.clone()
 
-            # Prepare the inputs for each band (model should handle them separately)
+            # Create the inputs dictionary for the model
             inputs = {
-                'b10': b10_data.to(device),
-                'b11': b11_data.to(device),
-                'b7': b7_data.to(device),
-                'b6': b6_data.to(device),
-                'b76': b76_data.to(device),
+                'b10': b10_data,
+                'b11': b11_data,
+                'b7': b7_data,
+                'b6': b6_data,
+                'b76': b76_data,
             }
 
-            targets = targets.to(device)  # Assuming targets are the same across all bands
+            # Send data to the appropriate device
+            inputs = {key: value.to(device) for key, value in inputs.items()}
+            targets = targets.to(device)
 
-            # Model inference for each band
-            preds = model(inputs)  # Assuming the model returns a dictionary with predictions for each band
+            # Model inference
+            preds = model(inputs)
 
-            # Store predictions and targets per band (assuming preds is dict-like)
-            for band in all_preds.keys():
-                all_preds[band].append(preds[band].cpu())  # Store the prediction for the band
-                all_targets[band].append(targets.cpu())  # Store the target for the band
+            # Store predictions and targets per branch
+            for branch in branch_preds.keys():
+                branch_preds[branch].append(preds[branch])
+                branch_targets[branch].append(targets)
 
-    # Convert predictions and targets to tensors for each band
-    for band in all_preds.keys():
-        all_preds[band] = torch.cat(all_preds[band]) if all_preds[band] else torch.Tensor()
-        all_targets[band] = torch.cat(all_targets[band]) if all_targets[band] else torch.Tensor()
+                # Compute metrics for each individual dataset (per branch)
+                branch_preds_flat = preds[branch].argmax(dim=1).cpu().numpy()
+                branch_targets_flat = targets.cpu().numpy()
 
-    # Calculate metrics for each band
+                precision, recall, f1_score, support = precision_recall_fscore_support(
+                    branch_targets_flat, branch_preds_flat, average=None
+                )
+                accuracy = accuracy_score(branch_targets_flat, branch_preds_flat)
+
+                # Store individual dataset metrics
+                dataset_metrics[branch]['accuracy'] = accuracy
+                dataset_metrics[branch]['precision'] = precision.tolist()
+                dataset_metrics[branch]['recall'] = recall.tolist()
+                dataset_metrics[branch]['f1_score'] = f1_score.tolist()
+                dataset_metrics[branch]['support'] = support.tolist()
+
+    # Process predictions and targets for each branch
     metrics = {}
-    for band in all_preds.keys():
-        if len(all_preds[band]) > 0:
-            precision, recall, f1_score, support = precision_recall_fscore_support(
-                all_targets[band], all_preds[band], average='weighted'
-            )
-            accuracy = accuracy_score(all_targets[band], all_preds[band])
+    for branch in branch_preds.keys():
+        branch_preds[branch] = torch.cat(branch_preds[branch], dim=0).argmax(dim=1)
+        branch_targets[branch] = torch.cat(branch_targets[branch], dim=0)
 
-            metrics[band] = {
-                "Accuracy": accuracy,
-                "Precision": precision,
-                "Recall": recall,
-                "F1 Score": f1_score,
-                "Support": support
-            }
+        # Calculate overall metrics for the branch
+        precision, recall, f1_score, support = precision_recall_fscore_support(
+            branch_targets[branch].cpu(), branch_preds[branch].cpu(), average=None
+        )
+        accuracy = accuracy_score(branch_targets[branch].cpu(), branch_preds[branch].cpu())
 
-            print(f"Metrics for {band}:")
-            print(f"  Accuracy: {accuracy}")
-            print(f"  Precision: {precision}")
-            print(f"  Recall: {recall}")
-            print(f"  F1 Score: {f1_score}")
-            print(f"  Support: {support}")
-        else:
-            print(f"No data for band {band}")
+        # Store overall metrics
+        metrics[branch] = {
+            "accuracy": accuracy,
+            "precision": precision.tolist(),
+            "recall": recall.tolist(),
+            "f1_score": f1_score.tolist(),
+            "support": support.tolist(),
+        }
 
-    # Save metrics to a CSV file
-    import pandas as pd
-    df = pd.DataFrame.from_dict(metrics, orient='index')
-    df.to_csv('metrics_per_band.csv')
+        # Generate confusion matrix
+        cm = confusion_matrix(branch_targets[branch].cpu(), branch_preds[branch].cpu())
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=True, yticklabels=True)
+        plt.title(f"Confusion Matrix for {branch}")
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        plt.savefig(f"{branch}_confusion_matrix.png")
+        plt.close()
 
-    for band in all_preds.keys():
-        if len(all_preds[band]) > 0:
-            cm = confusion_matrix(all_targets[band], all_preds[band])
-            plt.figure(figsize=(10, 7))
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-            plt.title(f'Confusion Matrix for {band}')
-            plt.xlabel('Predicted Labels')
-            plt.ylabel('True Labels')
+        # Save classification report
+        report = classification_report(
+            branch_targets[branch].cpu(), branch_preds[branch].cpu(), target_names=classes
+        )
+        with open(f"{branch}_classification_report.txt", "w") as f:
+            f.write(report)
 
-            # Save the confusion matrix plot locally
-            cm_filename = f"{band}_confusion_matrix.png"
-            plt.savefig(cm_filename)
-            plt.close()
+    # Log individual dataset metrics to WandB and save outputs
+    for branch, branch_metrics in dataset_metrics.items():
+        for dataset_name, metrics in branch_metrics.items():
+            wandb.log({
+                f"{branch}/{dataset_name}/Test Accuracy": metrics["accuracy"],
+                f"{branch}/{dataset_name}/Precision": metrics["precision"],
+                f"{branch}/{dataset_name}/Recall": metrics["recall"],
+                f"{branch}/{dataset_name}/F1 Score": metrics["f1_score"],
+                f"{branch}/{dataset_name}/Support": metrics["support"],
+            })
 
-            # Log the confusion matrix to wandb
-            wandb.save(cm_filename)
+        # Save dataset metrics to CSV
+        df = pd.DataFrame(branch_metrics)
+        df.to_csv(f"{branch}_dataset_metrics.csv", index=False)
 
-            # Save the classification report to a text file
-            report = classification_report(all_targets[band], all_preds[band])
-            report_filename = f"{band}_classification_report.txt"
-            with open(report_filename, 'w') as f:
-                f.write(report)
+        # Save confusion matrix
+        wandb.save(f"{branch}_confusion_matrix.png")
 
-            # Log the classification report to wandb
-            wandb.save(report_filename)
+        # Save classification report
+        wandb.save(f"{branch}_classification_report.txt")
 
+    # Log overall metrics to WandB and save outputs for overall metrics
+    for branch, branch_metrics in metrics.items():
+        wandb.log({
+            f"{branch}/Test Accuracy": branch_metrics["accuracy"],
+            f"{branch}/Precision": branch_metrics["precision"],
+            f"{branch}/Recall": branch_metrics["recall"],
+            f"{branch}/F1 Score": branch_metrics["f1_score"],
+            f"{branch}/Support": branch_metrics["support"],
+        })
+
+        # Save metrics to CSV
+        df = pd.DataFrame(branch_metrics)
+        df.to_csv(f"{branch}_metrics.csv", index=False)
+
+        # Save confusion matrix
+        wandb.save(f"{branch}_confusion_matrix.png")
+
+        # Save classification report
+        wandb.save(f"{branch}_classification_report.txt")
 
     """
     # This part of the code is working, but lucks individual dataset precision, recall and confusion matrix 
