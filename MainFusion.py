@@ -365,10 +365,15 @@ def main():
             # Model inference
             preds = model(inputs)
 
+            # Print shapes for debugging
+            for key in preds_dict.keys():
+                print(f"Shape of preds[{key}]: {preds[key].shape}")
+                print(f"Shape of preds_dict[{key}]: {len(preds_dict[key])}")
+
             # Store predictions and targets for each dataset
             for key in preds_dict.keys():
-                preds_dict[key].append(preds[key])
-                targets_dict[key].append(targets)
+                preds_dict[key].append(preds[key].cpu())
+                targets_dict[key].append(targets.cpu())
 
         # Calculate metrics for each dataset
         metrics = {}
@@ -377,9 +382,9 @@ def main():
             targets_tensor = torch.cat(targets_dict[key], dim=0)
 
             precision, recall, f1_score, support = precision_recall_fscore_support(
-                targets_tensor.cpu(), preds_tensor.cpu(), average=None, zero_division=1
+                targets_tensor, preds_tensor, average=None, zero_division=1
             )
-            accuracy = accuracy_score(targets_tensor.cpu(), preds_tensor.cpu())
+            accuracy = accuracy_score(targets_tensor, preds_tensor)
 
             metrics[key] = {
                 "accuracy": accuracy,
@@ -405,7 +410,7 @@ def main():
 
         # Generate and save confusion matrices for each dataset
         for key in preds_dict.keys():
-            cm = confusion_matrix(targets_tensor.cpu(), preds_tensor.cpu())
+            cm = confusion_matrix(targets_tensor, preds_tensor)
             plt.figure(figsize=(10, 8))
             sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=classes, yticklabels=classes)
             plt.title(f"{key} Confusion Matrix")
@@ -419,7 +424,7 @@ def main():
 
             # Save classification report
             report = classification_report(
-                targets_tensor.cpu(), preds_tensor.cpu(), target_names=classes
+                targets_tensor, preds_tensor, target_names=classes
             )
             with open(f"{key}_classification_report.txt", "w") as f:
                 f.write(report)
