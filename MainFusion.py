@@ -332,9 +332,9 @@ def main():
         wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
 
     # Predictions
-    # Initialise lists for predictions and targets
-    preds_list = []
-    targets_list = []
+    # Initialise dictionaries for predictions and targets
+    preds_dict = {key: [] for key in ['b10', 'b11', 'b7', 'b6', 'b76']}
+    targets_dict = {key: [] for key in ['b10', 'b11', 'b7', 'b6', 'b76']}
 
     # Set the model to evaluation mode
     model.eval()
@@ -365,67 +365,67 @@ def main():
             # Model inference
             preds = model(inputs)
 
-            # Print the entire preds tensor for debugging
-            print("Preds tensor:", preds)
+            # Store predictions and targets for each dataset
+            for key in preds_dict.keys():
+                preds_dict[key].append(preds[key])
+                targets_dict[key].append(targets)
 
-            # Store predictions and targets
-            preds_list.append(preds)
-            targets_list.append(targets)
+        # Calculate metrics for each dataset
+        metrics = {}
+        for key in preds_dict.keys():
+            preds_tensor = torch.cat(preds_dict[key], dim=0).argmax(dim=1)
+            targets_tensor = torch.cat(targets_dict[key], dim=0)
 
-        # Concatenate all predictions and targets
-        preds_tensor = torch.cat(preds_list, dim=0).argmax(dim=1)
-        targets_tensor = torch.cat(targets_list, dim=0)
+            precision, recall, f1_score, support = precision_recall_fscore_support(
+                targets_tensor.cpu(), preds_tensor.cpu(), average=None, zero_division=1
+            )
+            accuracy = accuracy_score(targets_tensor.cpu(), preds_tensor.cpu())
 
-        # Calculate metrics
-        precision, recall, f1_score, support = precision_recall_fscore_support(
-            targets_tensor.cpu(), preds_tensor.cpu(), average=None
-        )
-        accuracy = accuracy_score(targets_tensor.cpu(), preds_tensor.cpu())
-
-        # Store metrics
-        metrics = {
-            "accuracy": accuracy,
-            "precision": precision.tolist(),
-            "recall": recall.tolist(),
-            "f1_score": f1_score.tolist(),
-            "support": support.tolist(),
-        }
-
-        # Generate confusion matrix
-        cm = confusion_matrix(targets_tensor.cpu(), preds_tensor.cpu())
-        plt.figure(figsize=(10, 8))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=True, yticklabels=True)
-        plt.title("Confusion Matrix")
-        plt.xlabel("Predicted")
-        plt.ylabel("Actual")
-        plt.savefig("confusion_matrix.png")
-        plt.close()
-
-        # Save classification report
-        report = classification_report(
-            targets_tensor.cpu(), preds_tensor.cpu(), target_names=classes
-        )
-        with open("classification_report.txt", "w") as f:
-            f.write(report)
+            metrics[key] = {
+                "accuracy": accuracy,
+                "precision": precision.tolist(),
+                "recall": recall.tolist(),
+                "f1_score": f1_score.tolist(),
+                "support": support.tolist(),
+            }
 
         # Log metrics to WandB and save outputs
-        wandb.log({
-            "Test Accuracy": metrics["accuracy"],
-            "Precision": metrics["precision"],
-            "Recall": metrics["recall"],
-            "F1 Score": metrics["f1_score"],
-            "Support": metrics["support"],
-        })
+        for key, metric in metrics.items():
+            wandb.log({
+                f"{key} Test Accuracy": metric["accuracy"],
+                f"{key} Precision": metric["precision"],
+                f"{key} Recall": metric["recall"],
+                f"{key} F1 Score": metric["f1_score"],
+                f"{key} Support": metric["support"],
+            })
 
         # Save metrics to CSV
-        df = pd.DataFrame(metrics)
-        df.to_csv("metrics.csv", index=False)
+        df = pd.DataFrame(metric)
+        df.to_csv(f"{key}_metrics.csv", index=False)
 
-        # Save confusion matrix
-        wandb.save("confusion_matrix.png")
+        # Generate and save confusion matrices for each dataset
+        for key in preds_dict.keys():
+            cm = confusion_matrix(targets_tensor.cpu(), preds_tensor.cpu())
+            plt.figure(figsize=(10, 8))
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=classes, yticklabels=classes)
+            plt.title(f"{key} Confusion Matrix")
+            plt.xlabel("Predicted")
+            plt.ylabel("Actual")
+            plt.savefig(f"{key}_confusion_matrix.png")
+            plt.close()
 
-        # Save classification report
-        wandb.save("classification_report.txt")
+            # Save confusion matrix
+            wandb.save(f"{key}_confusion_matrix.png")
+
+            # Save classification report
+            report = classification_report(
+                targets_tensor.cpu(), preds_tensor.cpu(), target_names=classes
+            )
+            with open(f"{key}_classification_report.txt", "w") as f:
+                f.write(report)
+
+            # Save classification report
+            wandb.save(f"{key}_classification_report.txt")
 
     """
     # This part of the code is working, but lucks individual dataset precision, recall and confusion matrix 
