@@ -364,9 +364,6 @@ def main():
 
             # Model inference
             preds = model(inputs)
-            # Debugging prints
-            print(f"Shape of preds: {preds.shape}")
-            print(f"Shape of preds[{branch}]: {preds[branch].shape}" if branch in preds else "Branch not in preds")
 
             # Store predictions and targets per branch
             for branch in branch_preds.keys():
