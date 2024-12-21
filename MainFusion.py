@@ -364,6 +364,9 @@ def main():
 
             # Model inference
             preds = model(inputs)
+            # Debugging prints
+            print(f"Shape of preds: {preds.shape}")
+            print(f"Shape of preds[{branch}]: {preds[branch].shape}" if branch in preds else "Branch not in preds")
 
             # Store predictions and targets per branch
             for branch in branch_preds.keys():
@@ -372,7 +375,6 @@ def main():
 
     # Process predictions and targets for each branch
     metrics = {}
-    class_names = ['Cement', 'Landcover']
     for branch in branch_preds.keys():
         branch_preds[branch] = torch.cat(branch_preds[branch], dim=0).argmax(dim=1)
         branch_targets[branch] = torch.cat(branch_targets[branch], dim=0)
@@ -404,7 +406,7 @@ def main():
 
         # Save classification report
         report = classification_report(
-            branch_targets[branch].cpu(), branch_preds[branch].cpu(), target_names=class_names
+            branch_targets[branch].cpu(), branch_preds[branch].cpu(), target_names=classes
         )
         with open(f"{branch}_classification_report.txt", "w") as f:
             f.write(report)
