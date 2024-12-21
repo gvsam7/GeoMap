@@ -333,8 +333,8 @@ def main():
 
     # Predictions
     # Initialise lists for predictions and targets
-    branch_preds = {'b10': [], 'b11': [], 'b7': [], 'b6': [], 'b76': []}
-    branch_targets = {'b10': [], 'b11': [], 'b7': [], 'b6': [], 'b76': []}
+    preds_list = []
+    targets_list = []
 
     # Set the model to evaluation mode
     model.eval()
@@ -365,32 +365,25 @@ def main():
             # Model inference
             preds = model(inputs)
 
-            # Print the entire preds dictionary for debugging
-            print("Preds dictionary:", preds)
+            # Print the entire preds tensor for debugging
+            print("Preds tensor:", preds)
 
-            # Print shapes for debugging
-            for branch in branch_preds.keys():
-                print(f"Shape of preds[{branch}]: {preds[branch].shape}")
+            # Store predictions and targets
+            preds_list.append(preds)
+            targets_list.append(targets)
 
-            # Store predictions and targets per branch
-            for branch in branch_preds.keys():
-                branch_preds[branch].append(preds[branch])
-                branch_targets[branch].append(targets)
+        # Concatenate all predictions and targets
+        preds_tensor = torch.cat(preds_list, dim=0).argmax(dim=1)
+        targets_tensor = torch.cat(targets_list, dim=0)
 
-    # Process predictions and targets for each branch
-    metrics = {}
-    for branch in branch_preds.keys():
-        branch_preds[branch] = torch.cat(branch_preds[branch], dim=0).argmax(dim=1)
-        branch_targets[branch] = torch.cat(branch_targets[branch], dim=0)
-
-        # Calculate metrics for the branch
+        # Calculate metrics
         precision, recall, f1_score, support = precision_recall_fscore_support(
-            branch_targets[branch].cpu(), branch_preds[branch].cpu(), average=None
+            targets_tensor.cpu(), preds_tensor.cpu(), average=None
         )
-        accuracy = accuracy_score(branch_targets[branch].cpu(), branch_preds[branch].cpu())
+        accuracy = accuracy_score(targets_tensor.cpu(), preds_tensor.cpu())
 
         # Store metrics
-        metrics[branch] = {
+        metrics = {
             "accuracy": accuracy,
             "precision": precision.tolist(),
             "recall": recall.tolist(),
@@ -399,40 +392,40 @@ def main():
         }
 
         # Generate confusion matrix
-        cm = confusion_matrix(branch_targets[branch].cpu(), branch_preds[branch].cpu())
+        cm = confusion_matrix(targets_tensor.cpu(), preds_tensor.cpu())
         plt.figure(figsize=(10, 8))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=True, yticklabels=True)
-        plt.title(f"Confusion Matrix for {branch}")
+        plt.title("Confusion Matrix")
         plt.xlabel("Predicted")
         plt.ylabel("Actual")
-        plt.savefig(f"{branch}_confusion_matrix.png")
+        plt.savefig("confusion_matrix.png")
         plt.close()
 
         # Save classification report
         report = classification_report(
-            branch_targets[branch].cpu(), branch_preds[branch].cpu(), target_names=classes
+            targets_tensor.cpu(), preds_tensor.cpu(), target_names=classes
         )
-        with open(f"{branch}_classification_report.txt", "w") as f:
+        with open("classification_report.txt", "w") as f:
             f.write(report)
 
         # Log metrics to WandB and save outputs
         wandb.log({
-            f"{branch}/Test Accuracy": metrics[branch]["accuracy"],
-            f"{branch}/Precision": metrics[branch]["precision"],
-            f"{branch}/Recall": metrics[branch]["recall"],
-            f"{branch}/F1 Score": metrics[branch]["f1_score"],
-            f"{branch}/Support": metrics[branch]["support"],
+            "Test Accuracy": metrics["accuracy"],
+            "Precision": metrics["precision"],
+            "Recall": metrics["recall"],
+            "F1 Score": metrics["f1_score"],
+            "Support": metrics["support"],
         })
 
         # Save metrics to CSV
-        df = pd.DataFrame(metrics[branch])
-        df.to_csv(f"{branch}_metrics.csv", index=False)
+        df = pd.DataFrame(metrics)
+        df.to_csv("metrics.csv", index=False)
 
         # Save confusion matrix
-        wandb.save(f"{branch}_confusion_matrix.png")
+        wandb.save("confusion_matrix.png")
 
         # Save classification report
-        wandb.save(f"{branch}_classification_report.txt")
+        wandb.save("classification_report.txt")
 
     """
     # This part of the code is working, but lucks individual dataset precision, recall and confusion matrix 
