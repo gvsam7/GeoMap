@@ -335,7 +335,6 @@ def main():
     # Initialise lists for predictions and targets
     branch_preds = {'b10': [], 'b11': [], 'b7': [], 'b6': [], 'b76': []}
     branch_targets = {'b10': [], 'b11': [], 'b7': [], 'b6': [], 'b76': []}
-    dataset_metrics = {'b10': {}, 'b11': {}, 'b7': {}, 'b6': {}, 'b76': {}}
 
     # Set the model to evaluation mode
     model.eval()
@@ -365,27 +364,14 @@ def main():
 
             # Model inference
             preds = model(inputs)
+            # Debugging prints
+            print(f"Shape of preds: {preds.shape}")
+            print(f"Shape of preds[{branch}]: {preds[branch].shape}" if branch in preds else "Branch not in preds")
 
             # Store predictions and targets per branch
             for branch in branch_preds.keys():
                 branch_preds[branch].append(preds[branch])
                 branch_targets[branch].append(targets)
-
-                # Compute metrics for each individual dataset (per branch)
-                branch_preds_flat = preds[branch].argmax(dim=1).cpu().numpy()
-                branch_targets_flat = targets.cpu().numpy()
-
-                precision, recall, f1_score, support = precision_recall_fscore_support(
-                    branch_targets_flat, branch_preds_flat, average=None
-                )
-                accuracy = accuracy_score(branch_targets_flat, branch_preds_flat)
-
-                # Store individual dataset metrics
-                dataset_metrics[branch]['accuracy'] = accuracy
-                dataset_metrics[branch]['precision'] = precision.tolist()
-                dataset_metrics[branch]['recall'] = recall.tolist()
-                dataset_metrics[branch]['f1_score'] = f1_score.tolist()
-                dataset_metrics[branch]['support'] = support.tolist()
 
     # Process predictions and targets for each branch
     metrics = {}
@@ -393,13 +379,13 @@ def main():
         branch_preds[branch] = torch.cat(branch_preds[branch], dim=0).argmax(dim=1)
         branch_targets[branch] = torch.cat(branch_targets[branch], dim=0)
 
-        # Calculate overall metrics for the branch
+        # Calculate metrics for the branch
         precision, recall, f1_score, support = precision_recall_fscore_support(
             branch_targets[branch].cpu(), branch_preds[branch].cpu(), average=None
         )
         accuracy = accuracy_score(branch_targets[branch].cpu(), branch_preds[branch].cpu())
 
-        # Store overall metrics
+        # Store metrics
         metrics[branch] = {
             "accuracy": accuracy,
             "precision": precision.tolist(),
@@ -425,28 +411,7 @@ def main():
         with open(f"{branch}_classification_report.txt", "w") as f:
             f.write(report)
 
-    # Log individual dataset metrics to WandB and save outputs
-    for branch, branch_metrics in dataset_metrics.items():
-        for dataset_name, metrics in branch_metrics.items():
-            wandb.log({
-                f"{branch}/{dataset_name}/Test Accuracy": metrics["accuracy"],
-                f"{branch}/{dataset_name}/Precision": metrics["precision"],
-                f"{branch}/{dataset_name}/Recall": metrics["recall"],
-                f"{branch}/{dataset_name}/F1 Score": metrics["f1_score"],
-                f"{branch}/{dataset_name}/Support": metrics["support"],
-            })
-
-        # Save dataset metrics to CSV
-        df = pd.DataFrame(branch_metrics)
-        df.to_csv(f"{branch}_dataset_metrics.csv", index=False)
-
-        # Save confusion matrix
-        wandb.save(f"{branch}_confusion_matrix.png")
-
-        # Save classification report
-        wandb.save(f"{branch}_classification_report.txt")
-
-    # Log overall metrics to WandB and save outputs for overall metrics
+    # Log metrics to WandB and save outputs
     for branch, branch_metrics in metrics.items():
         wandb.log({
             f"{branch}/Test Accuracy": branch_metrics["accuracy"],
@@ -465,6 +430,7 @@ def main():
 
         # Save classification report
         wandb.save(f"{branch}_classification_report.txt")
+
 
     """
     # This part of the code is working, but lucks individual dataset precision, recall and confusion matrix 
