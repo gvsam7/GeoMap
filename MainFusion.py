@@ -365,6 +365,10 @@ def main():
             # Model inference
             preds = model(inputs)
 
+            # Print shapes for debugging
+            for branch in branch_preds.keys():
+                print(f"Shape of preds[{branch}]: {preds[branch].shape}")
+
             # Store predictions and targets per branch
             for branch in branch_preds.keys():
                 branch_preds[branch].append(preds[branch])
@@ -373,12 +377,13 @@ def main():
     # Process predictions and targets for each branch
     metrics = {}
     for branch in branch_preds.keys():
+        # Convert predictions to class indices (if necessary)
         branch_preds[branch] = torch.cat(branch_preds[branch], dim=0).argmax(dim=1)
         branch_targets[branch] = torch.cat(branch_targets[branch], dim=0)
 
-        # Calculate metrics for the branch
+        # Calculate precision, recall, f1_score, accuracy
         precision, recall, f1_score, support = precision_recall_fscore_support(
-            branch_targets[branch].cpu(), branch_preds[branch].cpu(), average=None
+            branch_targets[branch].cpu(), branch_preds[branch].cpu(), average='weighted'  # Change average as needed
         )
         accuracy = accuracy_score(branch_targets[branch].cpu(), branch_preds[branch].cpu())
 
@@ -408,15 +413,15 @@ def main():
         with open(f"{branch}_classification_report.txt", "w") as f:
             f.write(report)
 
-    # Log metrics to WandB and save outputs
-    for branch, branch_metrics in metrics.items():
-        wandb.log({
-            f"{branch}/Test Accuracy": branch_metrics["accuracy"],
-            f"{branch}/Precision": branch_metrics["precision"],
-            f"{branch}/Recall": branch_metrics["recall"],
-            f"{branch}/F1 Score": branch_metrics["f1_score"],
-            f"{branch}/Support": branch_metrics["support"],
-        })
+        # Log metrics to WandB and save outputs
+        for branch, branch_metrics in metrics.items():
+            wandb.log({
+                f"{branch}/Test Accuracy": branch_metrics["accuracy"],
+                f"{branch}/Precision": branch_metrics["precision"],
+                f"{branch}/Recall": branch_metrics["recall"],
+                f"{branch}/F1 Score": branch_metrics["f1_score"],
+                f"{branch}/Support": branch_metrics["support"],
+            })
 
         # Save metrics to CSV
         df = pd.DataFrame(branch_metrics)
