@@ -29,7 +29,10 @@ from plots.ModelExam import parameters, get_predictions, plot_confusion_matrix, 
 from pandas import DataFrame
 import numpy as np
 from torchvision import transforms
-from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score, confusion_matrix, classification_report
+
 import pandas as pd
 import wandb
 
@@ -203,7 +206,6 @@ def main():
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
     prediction_loader = DataLoader(test_dataset, batch_size=args.batch_size, collate_fn=custom_collate_fn)
 
-
     # Network
     model = networks(architecture=args.architecture, in_channels=args.in_channels, num_classes=num_classes,
                      pretrained=args.pretrained, requires_grad=args.requires_grad,
@@ -330,7 +332,108 @@ def main():
         wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
 
     # Predictions
-    # Initialize lists for predictions and targets
+    # Initialise lists for predictions and targets
+    branch_preds = {'b10': [], 'b11': [], 'b7': [], 'b6': [], 'b76': []}
+    branch_targets = {'b10': [], 'b11': [], 'b7': [], 'b6': [], 'b76': []}
+
+    # Set the model to evaluation mode
+    model.eval()
+
+    # Disable gradient calculations during inference
+    with torch.no_grad():
+        for data, targets in prediction_loader:
+            # Assuming `data` needs to be split into 5 branches
+            b10_data = data.clone()
+            b11_data = data.clone()
+            b7_data = data.clone()
+            b6_data = data.clone()
+            b76_data = data.clone()
+
+            # Create the inputs dictionary for the model
+            inputs = {
+                'b10': b10_data,
+                'b11': b11_data,
+                'b7': b7_data,
+                'b6': b6_data,
+                'b76': b76_data,
+            }
+
+            # Send data to the appropriate device
+            inputs = {key: value.to(device) for key, value in inputs.items()}
+            targets = targets.to(device)
+
+            # Model inference
+            preds = model(inputs)
+
+            # Store predictions and targets per branch
+            for branch in branch_preds.keys():
+                branch_preds[branch].append(preds[branch])
+                branch_targets[branch].append(targets)
+
+    # Process predictions and targets for each branch
+    metrics = {}
+    class_names = ['Cement', 'Landcover']
+    for branch in branch_preds.keys():
+        branch_preds[branch] = torch.cat(branch_preds[branch], dim=0).argmax(dim=1)
+        branch_targets[branch] = torch.cat(branch_targets[branch], dim=0)
+
+        # Calculate metrics for the branch
+        precision, recall, f1_score, support = precision_recall_fscore_support(
+            branch_targets[branch].cpu(), branch_preds[branch].cpu(), average=None
+        )
+        accuracy = accuracy_score(branch_targets[branch].cpu(), branch_preds[branch].cpu())
+
+        # Store metrics
+        metrics[branch] = {
+            "accuracy": accuracy,
+            "precision": precision.tolist(),
+            "recall": recall.tolist(),
+            "f1_score": f1_score.tolist(),
+            "support": support.tolist(),
+        }
+
+        # Generate confusion matrix
+        cm = confusion_matrix(branch_targets[branch].cpu(), branch_preds[branch].cpu())
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=True, yticklabels=True)
+        plt.title(f"Confusion Matrix for {branch}")
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        plt.savefig(f"{branch}_confusion_matrix.png")
+        plt.close()
+
+        # Save classification report
+        report = classification_report(
+            branch_targets[branch].cpu(), branch_preds[branch].cpu(), target_names=class_names
+        )
+        with open(f"{branch}_classification_report.txt", "w") as f:
+            f.write(report)
+
+    # Log metrics to WandB and save outputs
+    for branch, branch_metrics in metrics.items():
+        wandb.log({
+            f"{branch}/Test Accuracy": branch_metrics["accuracy"],
+            f"{branch}/Precision": branch_metrics["precision"],
+            f"{branch}/Recall": branch_metrics["recall"],
+            f"{branch}/F1 Score": branch_metrics["f1_score"],
+            f"{branch}/Support": branch_metrics["support"],
+        })
+
+        # Save metrics to CSV
+        df = pd.DataFrame(branch_metrics)
+        df.to_csv(f"{branch}_metrics.csv", index=False)
+
+        # Save confusion matrix
+        wandb.save(f"{branch}_confusion_matrix.png")
+
+        # Save classification report
+        wandb.save(f"{branch}_classification_report.txt")
+
+
+    """
+    # This part of the code is working, but lucks individual dataset precision, recall and confusion matrix 
+    # functionality. 
+    # Initialise lists for predictions and targets
     all_preds = []
     all_targets = []
 
@@ -414,7 +517,8 @@ def main():
 
     wandb.save('test.csv')
     wandb.save('my_checkpoint.pth.tar')
-    wandb.save('Predictions.csv')
+    wandb.save('Predictions.csv')"""
+
 
 if __name__ == "__main__":
     main()
