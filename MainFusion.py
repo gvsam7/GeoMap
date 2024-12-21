@@ -28,9 +28,9 @@ from plots.ModelExam import parameters, get_predictions, plot_confusion_matrix, 
     get_representations, get_pca, plot_representations, get_tsne
 from pandas import DataFrame
 import numpy as np
-from sklearn.metrics import precision_recall_fscore_support as score
-from sklearn.metrics import accuracy_score
 from torchvision import transforms
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+import pandas as pd
 import wandb
 
 
@@ -330,16 +330,18 @@ def main():
         wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
 
     # Predictions
-    # Initialise a list to store predictions
+    # Initialize lists for predictions and targets
     all_preds = []
+    all_targets = []
 
     # Set the model to evaluation mode
     model.eval()
 
-    with torch.no_grad():  # Disable gradient calculation during inference
+    # Disable gradient calculations during inference
+    with torch.no_grad():
         for data, targets in prediction_loader:
-            # Ensure the data is properly split into branches, similar to train and validation
-            b10_data = data.clone()  # Assuming `data` needs to be split into 5 branches
+            # Assuming `data` needs to be split into 5 branches
+            b10_data = data.clone()  # Modify if specific transformations are needed
             b11_data = data.clone()
             b7_data = data.clone()
             b6_data = data.clone()
@@ -354,110 +356,65 @@ def main():
                 'b76': b76_data,
             }
 
-            # Send the data to the device (GPU/CPU)
+            # Send data to the appropriate device
             inputs = {key: value.to(device) for key, value in inputs.items()}
+            targets = targets.to(device)
 
-            # Pass the data through the model
-            preds = model(inputs)  # Assuming the model returns predictions
+            # Model inference
+            preds = model(inputs)
 
-            # Collect the predictions for later analysis
+            # Store predictions and targets
             all_preds.append(preds)
+            all_targets.append(targets)
 
-    # After the loop, convert the predictions to a tensor
-    train_preds = torch.cat(all_preds, dim=0)  # Assuming you want to concatenate along the first dimension
+    # Convert predictions and targets to tensors
+    train_preds = torch.cat(all_preds, dim=0)
+    train_targets = torch.cat(all_targets, dim=0)
 
+    # Output shapes and top predictions
     print(f"Train predictions shape: {train_preds.shape}")
-    print(f"The label the network predicts strongly: {train_preds.argmax(dim=1)}")
+    print(f"Predicted labels: {train_preds.argmax(dim=1)}")
 
-    # Get the final predicted class labels
+    # Final predicted class labels
     predictions = train_preds.argmax(dim=1)
-    """
-    # After training, get predictions
-    # prediction_loader = DataLoader(test_dataset, batch_size=args.batch_size, collate_fn=custom_collate_fn)
-    train_preds = get_all_preds(model, loader=prediction_loader, device=device)
-    print(f"Train predictions shape: {train_preds.shape}")
-    print(f"The label the network predicts strongly: {train_preds.argmax(dim=1)}")
-    predictions = train_preds.argmax(dim=1)"""
 
-    # Most Confident Incorrect Predictions
-    # Iterate through each dataset to get predictions and other metrics
-    for dataset_name, prediction_loader in datasets.items():
-        # Get predictions
-        images, labels, probs = get_predictions(model, prediction_loader, device)
+    # Calculate metrics
+    precision, recall, f1_score, support = precision_recall_fscore_support(
+        train_targets.cpu(), predictions.cpu(), average='weighted'
+    )
+    accuracy = accuracy_score(train_targets.cpu(), predictions.cpu())
 
-        pred_labels = torch.argmax(probs, 1)
-        print(f"Predicted labels for {dataset_name}: {pred_labels}")
+    # Log metrics to wandb
+    wandb.log({
+        "Test Accuracy": accuracy,
+        "Precision": precision,
+        "Recall": recall,
+        "F1 Score": f1_score
+    })
 
-        corrects = torch.eq(labels, pred_labels)
-        incorrect_examples = []
+    # Output metrics
+    print(f"Test Accuracy: {accuracy}")
+    print(f"Precision: {precision}")
+    print(f"Recall: {recall}")
+    print(f"F1 Score: {f1_score}")
+    print(f"Support: {support}")
 
-        # Collect incorrect examples
-        for image, label, prob, correct in zip(images, labels, probs, corrects):
-            if not correct:
-                incorrect_examples.append((image, label, prob))
+    # Save metrics and predictions
+    df = pd.DataFrame({
+        "Test Accuracy": [accuracy],
+        "Precision": [precision],
+        "Recall": [recall],
+        "F1 Score": [f1_score],
+        "Support": [support]
+    })
+    df.to_csv('metrics.csv', index=False)
 
-        # Sort incorrect examples based on max probability
-        incorrect_examples.sort(reverse=True, key=lambda x: torch.max(x[2], dim=0).values)
+    compression_opts = dict(method='zip', archive_name='out.csv')
+    df.to_csv('out.zip', index=False, compression=compression_opts)
 
-        # Visualization of most incorrect predictions
-        n_images = 48
-        classes = ['Cement', 'Landcover']  # Modify as needed
-        plot_most_incorrect(incorrect_examples, classes, n_images)
-        wandb.save(f'{dataset_name}_Most_Conf_Incorrect_Pred.png')
-
-        # Principle Components Analysis (PCA)
-        outputs, intermediates, labels = get_representations(model, prediction_loader, device)
-        output_pca_data = get_pca(outputs)
-        plot_representations(output_pca_data, labels, classes, "PCA")
-        wandb.save(f'{dataset_name}_PCA.png')
-
-        # t-Distributed Stochastic Neighbor Embedding (t-SNE)
-        n_images = 10_000  # Adjust as needed
-        output_tsne_data = get_tsne(outputs, n_images=n_images)
-        plot_representations(output_tsne_data, labels, classes, "TSNE", n_images=n_images)
-        wandb.save(f'{dataset_name}_TSNE.png')
-
-        # Confusion Matrix and classification report
-        plot_confusion_matrix(labels, pred_labels, classes)
-        wandb.save(f'{dataset_name}_Confusion_Matrix.png')
-
-        # Using wandb's sklearn plots for confusion matrix, proportions, etc.
-        wandb.sklearn.plot_confusion_matrix(labels, pred_labels, classes)
-        wandb.sklearn.plot_class_proportions(labels, pred_labels, classes)
-
-        # Metrics: precision, recall, f1_score, support
-        precision, recall, f1_score, support = score(labels, pred_labels)
-        accuracy = accuracy_score(labels, pred_labels)
-
-        # Log metrics to wandb
-        wandb.log({f"{dataset_name}_Test Accuracy": accuracy,
-                   f"{dataset_name}_Precision": precision,
-                   f"{dataset_name}_Recall": recall,
-                   f"{dataset_name}_F1 Score": f1_score})
-
-        # Output the metrics
-        print(f"{dataset_name} Test Accuracy: {accuracy}")
-        print(f"{dataset_name} Precision: {precision}")
-        print(f"{dataset_name} Recall: {recall}")
-        print(f"{dataset_name} F1 Score: {f1_score}")
-        print(f"{dataset_name} Support: {support}")
-
-        # Save metrics and predictions
-        df = DataFrame({f"{dataset_name}_Test Accuracy": accuracy,
-                        f"{dataset_name}_Precision": precision,
-                        f"{dataset_name}_Recall": recall,
-                        f"{dataset_name}_F1 Score": f1_score,
-                        f"{dataset_name}_Support": support})
-
-        df.to_excel(f'{dataset_name}_test.xlsx', sheet_name='sheet1', index=False)
-        df.to_csv(f'{dataset_name}_test.csv', index=False)
-
-        compression_opts = dict(method='zip', archive_name=f'{dataset_name}_out.csv')
-        df.to_csv(f'{dataset_name}_out.zip', index=False, compression=compression_opts)
-
-        # Save predictions
-        wandb.save(f'{dataset_name}_Predictions.csv')
-        wandb.save(f'{dataset_name}_my_checkpoint.pth.tar')
+    wandb.save('test.csv')
+    wandb.save('my_checkpoint.pth.tar')
+    wandb.save('Predictions.csv')
 
 if __name__ == "__main__":
     main()
