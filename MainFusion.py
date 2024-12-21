@@ -365,6 +365,9 @@ def main():
             # Model inference
             preds = model(inputs)
 
+            # Print the entire preds dictionary for debugging
+            print("Preds dictionary:", preds)
+
             # Print shapes for debugging
             for branch in branch_preds.keys():
                 print(f"Shape of preds[{branch}]: {preds[branch].shape}")
@@ -377,13 +380,12 @@ def main():
     # Process predictions and targets for each branch
     metrics = {}
     for branch in branch_preds.keys():
-        # Convert predictions to class indices (if necessary)
         branch_preds[branch] = torch.cat(branch_preds[branch], dim=0).argmax(dim=1)
         branch_targets[branch] = torch.cat(branch_targets[branch], dim=0)
 
-        # Calculate precision, recall, f1_score, accuracy
+        # Calculate metrics for the branch
         precision, recall, f1_score, support = precision_recall_fscore_support(
-            branch_targets[branch].cpu(), branch_preds[branch].cpu(), average='weighted'  # Change average as needed
+            branch_targets[branch].cpu(), branch_preds[branch].cpu(), average=None
         )
         accuracy = accuracy_score(branch_targets[branch].cpu(), branch_preds[branch].cpu())
 
@@ -414,17 +416,16 @@ def main():
             f.write(report)
 
         # Log metrics to WandB and save outputs
-        for branch, branch_metrics in metrics.items():
-            wandb.log({
-                f"{branch}/Test Accuracy": branch_metrics["accuracy"],
-                f"{branch}/Precision": branch_metrics["precision"],
-                f"{branch}/Recall": branch_metrics["recall"],
-                f"{branch}/F1 Score": branch_metrics["f1_score"],
-                f"{branch}/Support": branch_metrics["support"],
-            })
+        wandb.log({
+            f"{branch}/Test Accuracy": metrics[branch]["accuracy"],
+            f"{branch}/Precision": metrics[branch]["precision"],
+            f"{branch}/Recall": metrics[branch]["recall"],
+            f"{branch}/F1 Score": metrics[branch]["f1_score"],
+            f"{branch}/Support": metrics[branch]["support"],
+        })
 
         # Save metrics to CSV
-        df = pd.DataFrame(branch_metrics)
+        df = pd.DataFrame(metrics[branch])
         df.to_csv(f"{branch}_metrics.csv", index=False)
 
         # Save confusion matrix
@@ -432,7 +433,6 @@ def main():
 
         # Save classification report
         wandb.save(f"{branch}_classification_report.txt")
-
 
     """
     # This part of the code is working, but lucks individual dataset precision, recall and confusion matrix 
