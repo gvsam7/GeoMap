@@ -15,7 +15,7 @@ class FusionNet(nn.Module):
 
         # Fully connected layers for fusion
         # cnn_out_features = self.b10_CNN.classifier[0].in_features  # Access first Linear layer's input features
-        cnn_out_features = 2
+        cnn_out_features = 512
         # Final fusion CNN (includes avgpool and classifier)
         self.fusion_CNN = CNN5(5 * cnn_out_features, num_classes=num_classes)
         """
