@@ -99,7 +99,7 @@ def loss_fun(class_weight):
     return criterion
 
 
-"""def custom_collate_fn(batch):
+def custom_collate_fn(batch):
     resize = transforms.Resize((256, 256))
 
     # Process each item in the batch individually
@@ -116,43 +116,7 @@ def loss_fun(class_weight):
     # Convert labels to a tensor
     labels = torch.tensor(labels)
 
-    return images, labels"""
-
-
-def custom_collate_fn(batch):
-    resize = transforms.Resize((256, 256))
-
-    # Assuming each item in batch contains band-specific data
-    band_images = {
-        'b10': [],
-        'b11': [],
-        'b7': [],
-        'b6': [],
-        'b76': []
-    }
-    labels = []
-
-    # Process each item in the batch
-    for item in batch:
-        # Assuming item contains band-specific images and a label
-        images, label = item
-
-        # Process each band
-        for band_name, band_data in images.items():
-            if isinstance(band_data, torch.Tensor):
-                band_images[band_name].append(band_data)
-            else:
-                band_images[band_name].append(transforms.ToTensor()(resize(band_data)))
-
-        labels.append(label)
-
-    # Stack tensors for each band
-    processed_images = {
-        band: torch.stack(images, dim=0)
-        for band, images in band_images.items()
-    }
-
-    return processed_images, torch.tensor(labels)
+    return images, labels
 
 
 def main():
@@ -183,7 +147,7 @@ def main():
     labels_b76 = datasets['b76'].classes
 
     # Perform a stratified split for each dataset
-    """def stratified_split(dataset):
+    def stratified_split(dataset):
         y = dataset.targets
         dataset_len = len(dataset)
         X_trainval, X_test, y_trainval, y_test = train_test_split(
@@ -194,42 +158,6 @@ def main():
         X_train, X_val, y_train, y_val = train_test_split(
             X2, y2, test_size=0.2, stratify=y2,
             random_state=args.random_state, shuffle=True)
-        return X_train, X_val, X_test, y_train, y_val, y_test"""
-
-    def stratified_split(dataset):
-        # Get the targets (labels) for stratification
-        y = dataset.targets
-        dataset_len = len(dataset)
-
-        # Debug: Print the class distribution in the original dataset
-        unique, counts = np.unique(y, return_counts=True)
-        print(f"Original dataset size: {dataset_len}")
-        print(f"Original class distribution: {dict(zip(unique, counts))}")
-
-        # Perform the first split (Train+Val / Test)
-        X_trainval, X_test, y_trainval, y_test = train_test_split(
-            np.arange(dataset_len), y, test_size=0.2, stratify=y,
-            random_state=args.random_state, shuffle=True)
-
-        # Debug: Check sizes and class distributions after the first split
-        print(f"Train+Val size: {len(X_trainval)}, Test size: {len(X_test)}")
-        unique_trainval, counts_trainval = np.unique(y_trainval, return_counts=True)
-        unique_test, counts_test = np.unique(y_test, return_counts=True)
-        print(f"Train+Val class distribution: {dict(zip(unique_trainval, counts_trainval))}")
-        print(f"Test class distribution: {dict(zip(unique_test, counts_test))}")
-
-        # Perform the second split (Train / Val)
-        X_train, X_val, y_train, y_val = train_test_split(
-            X_trainval, y_trainval, test_size=0.2, stratify=y_trainval,
-            random_state=args.random_state, shuffle=True)
-
-        # Debug: Check sizes and class distributions after the second split
-        print(f"Train size: {len(X_train)}, Validation size: {len(X_val)}")
-        unique_train, counts_train = np.unique(y_train, return_counts=True)
-        unique_val, counts_val = np.unique(y_val, return_counts=True)
-        print(f"Train class distribution: {dict(zip(unique_train, counts_train))}")
-        print(f"Validation class distribution: {dict(zip(unique_val, counts_val))}")
-
         return X_train, X_val, X_test, y_train, y_val, y_test
 
     # Split each dataset separately
@@ -307,27 +235,9 @@ def main():
         model.train()
         sum_acc = 0
         total_batches = 0
-        for data, targets in train_loader:
-            # data is already a dictionary with band-specific tensors
-            # {'b10': tensor[...], 'b11': tensor[...], etc.}
-            inputs = {key: value.to(device) for key, value in data.items()}
-            targets = targets.to(device)
-
-            if args.augmentation == "cutmix":
-                # Implement cutmix augmentation
-                pass
-            elif args.augmentation == "mixup":
-                # Implement mixup augmentation
-                pass
-            else:
-                acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
-                sum_acc += acc
-                total_batches += 1
-
-        train_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
-        """for dataset_key, dataset in datasets.items():
+        for dataset_key, train_dataset in datasets.items():
             # Create DataLoader for each dataset
-            # train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
+            train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
 
             for data, targets in train_loader:
                 # Split the data according to the branches, assuming you have 5 different inputs
@@ -361,7 +271,7 @@ def main():
                     sum_acc += acc
                     total_batches += 1
 
-        train_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0"""
+        train_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
         # optimizer.step()
         # scheduler.step(train_avg_acc)
 
@@ -380,30 +290,9 @@ def main():
         total_batches = 0  # To correctly average over all validation batches
 
         with torch.no_grad():  # Disable gradient computation for validation
-            for data, targets in val_loader:
-                # data is already a dictionary with band-specific tensors from custom_collate_fn
-                inputs = {key: value.to(device) for key, value in data.items()}
-                targets = targets.to(device)
-
-                # Calculate validation metrics
-                acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=False)
-
-                # Accumulate accuracy across batches
-                sum_acc += acc
-                total_batches += 1
-
-            # Calculate average validation accuracy
-            val_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
-
-            print(
-                f"Epoch: {epoch + 1} \tTraining accuracy: {train_avg_acc:.2f} \n\t\tValidation accuracy: {val_avg_acc:.2f}"
-            )
-
-            train_steps = len(train_loader) * (epoch + 1)
-            wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
-            """for dataset_key, dataset in datasets.items():
+            for dataset_key, val_dataset in datasets.items():
                 # Create DataLoader for each dataset
-                # val_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
+                val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
                 for data, targets in val_loader:
                     # Extract individual branches from the data
@@ -440,18 +329,15 @@ def main():
             f"Epoch: {epoch + 1} \tTraining accuracy: {train_avg_acc:.2f} \n\t\tValidation accuracy: {val_avg_acc:.2f}")
 
         train_steps = len(train_loader) * (epoch + 1)
-        wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)"""
+        wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
 
     # Predictions
     predictions = {}
-    iterator = prediction_loader
-    images, labels, probs = get_predictions(model, iterator, device)
-    predictions = (images, labels, probs)
-    """for dataset_key, dataset in datasets.items():
-        # iterator = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
-        iterator = prediction_loader
+    for dataset_key, dataset in datasets.items():
+        iterator = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
+        # iterator = prediction_loader
         images, labels, probs = get_fusion_predictions(model, iterator, device)
-        predictions[dataset_key] = (images, labels, probs)"""
+        predictions[dataset_key] = (images, labels, probs)
 
     # Generate and plot confusion matrices for each dataset
     for dataset_key, (images, labels, probs) in predictions.items():
