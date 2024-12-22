@@ -32,7 +32,7 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score, confusion_matrix, classification_report
-
+from plots.ModelExam import get_fusion_predictions
 import pandas as pd
 import wandb
 
@@ -332,6 +332,64 @@ def main():
         wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
 
     # Predictions
+    predictions = {}
+    for dataset_key, dataset in datasets.items():
+        iterator = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
+        images, labels, probs = get_fusion_predictions(model, iterator, device)
+        predictions[dataset_key] = (images, labels, probs)
+
+    # Generate and plot confusion matrices for each dataset
+    for dataset_key, (images, labels, probs) in predictions.items():
+        pred_labels = torch.argmax(probs, 1)
+        corrects = torch.eq(labels, pred_labels)
+
+        incorrect_examples = []
+
+        for image, label, prob, correct in zip(images, labels, probs, corrects):
+            if not correct:
+                incorrect_examples.append((image, label, prob))
+
+        incorrect_examples.sort(reverse=True, key=lambda x: torch.max(x[2], dim=0).values)
+
+        n_images = 48
+        classes = ['Cement', 'Landcover']
+        plot_most_incorrect(incorrect_examples, classes, n_images)
+        wandb.save(f'Most_Conf_Incorrect_Pred_{dataset_key}.png')
+
+        # Confusion Matrix
+        plot_confusion_matrix(labels, pred_labels, classes)
+        wandb.save(f'Confusion_Matrix_{dataset_key}.png')
+
+        # Log confusion matrix with wandb
+        wandb.sklearn.plot_confusion_matrix(labels, pred_labels, classes)
+        wandb.sklearn.plot_class_proportions(labels, labels, classes)
+
+        precision, recall, f1_score, support = precision_recall_fscore_support(labels, pred_labels, average='weighted')
+        test_acc = accuracy_score(labels, pred_labels)
+        wandb.log({f"Test Accuracy {dataset_key}": test_acc})
+
+        print(f"Dataset: {dataset_key}")
+        print(f"Test Accuracy: {test_acc}")
+        print(f"precision: {precision}")
+        print(f"recall: {recall}")
+        print(f"f1_score: {f1_score}")
+        print(f"support: {support}")
+
+        # Save test data in Excel document
+        df = DataFrame(
+            {'Test Accuracy': [test_acc], 'precision': [precision], 'recall': [recall], 'f1_score': [f1_score],
+             'support': [support]})
+        df.to_excel(f'test_{dataset_key}.xlsx', sheet_name='sheet1', index=False)
+        df.to_csv(f'test_{dataset_key}.csv', index=False)
+        compression_opts = dict(method='zip', archive_name=f'out_{dataset_key}.csv')
+        df.to_csv(f'out_{dataset_key}.zip', index=False, compression=compression_opts)
+
+        wandb.save(f'test_{dataset_key}.csv')
+        wandb.save(f'my_checkpoint_{dataset_key}.pth.tar')
+        wandb.save(f'Predictions_{dataset_key}.csv')
+
+
+    """
     preds_list = []
     targets_list = []
 
@@ -424,7 +482,7 @@ def main():
         wandb.save("confusion_matrix.png")
 
         # Save classification report
-        wandb.save("classification_report.txt")
+        wandb.save("classification_report.txt")"""
 
     """
     # This part of the code is working, but lucks individual dataset precision, recall and confusion matrix 

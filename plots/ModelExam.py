@@ -11,6 +11,51 @@ def parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
+def get_fusion_predictions(model, iterator, device):
+    model.eval()
+
+    images = []
+    labels = []
+    probs = []
+
+    with torch.no_grad():
+        for data, targets in iterator:
+            # Extract individual branches from the data
+            b10_data = data
+            b11_data = data
+            b7_data = data
+            b6_data = data
+            b76_data = data
+
+            # Create the `inputs` dictionary
+            inputs = {
+                'b10': b10_data,
+                'b11': b11_data,
+                'b7': b7_data,
+                'b6': b6_data,
+                'b76': b76_data,
+            }
+
+            # Send data to the device (GPU/CPU)
+            inputs = {key: value.to(device) for key, value in inputs.items()}
+            targets = targets.to(device)
+
+            y_pred = model(inputs)
+
+            y_prob = F.softmax(y_pred, dim=-1)
+            top_pred = y_prob.argmax(1, keepdim=True)
+
+            images.append(data.cpu())
+            labels.append(targets.cpu())
+            probs.append(y_prob.cpu())
+
+    images = torch.cat(images, dim=0)
+    labels = torch.cat(labels, dim=0)
+    probs = torch.cat(probs, dim=0)
+
+    return images, labels, probs
+
+
 def get_predictions(model, iterator, device):
 
     model.eval()
