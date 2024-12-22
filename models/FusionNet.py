@@ -17,7 +17,7 @@ class FusionNet(nn.Module):
         # cnn_out_features = self.b10_CNN.classifier[0].in_features  # Access first Linear layer's input features
         cnn_out_features = 2
         # Final fusion CNN (includes avgpool and classifier)
-        self.fusion_CNN = CNN5(5 * cnn_out_features, num_classes=num_classes, final=True)
+        self.fusion_CNN = CNN5(5 * cnn_out_features, num_classes=num_classes)
         """
         self.fc = nn.Sequential(
             nn.Linear(5 * cnn_out_features, 512),  # Combine features from all backbones
