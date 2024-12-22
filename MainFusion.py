@@ -334,7 +334,7 @@ def main():
     # Predictions
     predictions = {}
     for dataset_key, dataset in datasets.items():
-        iterator = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
+        iterator = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
         # iterator = prediction_loader
         images, labels, probs = get_fusion_predictions(model, iterator, device)
         predictions[dataset_key] = (images, labels, probs)
