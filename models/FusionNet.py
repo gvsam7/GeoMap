@@ -1,26 +1,29 @@
 import torch
 import torch.nn as nn
-from models.CNN import CNN5
+from models.FusionCNN import FusionCNN5
 
 
 class FusionNet(nn.Module):
     def __init__(self, in_channels=3, num_classes=2):
         super().__init__()
-        self.b10_CNN = CNN5(in_channels, num_classes)
-        self.b11_CNN = CNN5(in_channels, num_classes)
-        self.b7_CNN = CNN5(in_channels, num_classes)
-        self.b6_CNN = CNN5(in_channels, num_classes)
-        self.b76_CNN = CNN5(in_channels, num_classes)
+        self.b10_CNN = FusionCNN5(in_channels, num_classes, final=False)
+        self.b11_CNN = FusionCNN5(in_channels, num_classes, final=False)
+        self.b7_CNN = FusionCNN5(in_channels, num_classes, final=False)
+        self.b6_CNN = FusionCNN5(in_channels, num_classes, final=False)
+        self.b76_CNN = FusionCNN5(in_channels, num_classes, final=False)
 
         # Fully connected layers for fusion
         # cnn_out_features = self.b10_CNN.classifier[0].in_features  # Access first Linear layer's input features
         cnn_out_features = 2
+        # Final fusion CNN (includes avgpool and classifier)
+        self.fusion_CNN = FusionCNN5(5 * cnn_out_features, num_classes=num_classes, final=True)
+        """
         self.fc = nn.Sequential(
             nn.Linear(5 * cnn_out_features, 512),  # Combine features from all backbones
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(512, num_classes),
-        )
+        )"""
 
     def forward(self, inputs):
         # Process each input branch through its respective CNN
@@ -34,6 +37,7 @@ class FusionNet(nn.Module):
         fused_features = torch.cat((b10_out, b11_out, b7_out, b6_out, b76_out), dim=1)
 
         # Final classification
-        output = self.fc(fused_features)
+        # output = self.fc(fused_features)
+        output = self.fusion_CNN(fused_features)
         
         return output
