@@ -5,6 +5,7 @@ import numpy as np
 from sklearn import decomposition, manifold
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from torchvision import transforms
+import seaborn as sns
 
 
 def parameters(model):
@@ -93,6 +94,18 @@ def normalize_image(image):
     image.add_(-image_min).div_(image_max - image_min + 1e-5)
 
     return image
+
+
+# Function to plot fusion confusion matrix
+def plot_fusion_confusion_matrix(y_true, y_pred, classes, dataset_key):
+    cm = confusion_matrix(y_true.cpu(), y_pred.cpu())
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=classes, yticklabels=classes)
+    plt.title(f'Confusion Matrix for {dataset_key}')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.savefig(f'Confusion_Matrix_{dataset_key}.png')
+    plt.close()
 
 
 def plot_confusion_matrix(labels, pred_labels, classes):

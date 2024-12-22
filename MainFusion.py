@@ -32,7 +32,7 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score, confusion_matrix, classification_report
-from plots.ModelExam import get_fusion_predictions
+from plots.ModelExam import get_fusion_predictions, plot_fusion_confusion_matrix
 import pandas as pd
 import wandb
 
@@ -357,10 +357,10 @@ def main():
         wandb.save(f'Most_Conf_Incorrect_Pred_{dataset_key}.png')
 
         # Confusion Matrix
-        plot_confusion_matrix(labels, pred_labels, classes)
+        plot_fusion_confusion_matrix(labels, pred_labels, classes, dataset_key)
         wandb.save(f'Confusion_Matrix_{dataset_key}.png')
 
-        # Log confusion matrix with wandb
+        # Log confusion matrix with WandB
         wandb.sklearn.plot_confusion_matrix(labels, pred_labels, classes)
         wandb.sklearn.plot_class_proportions(labels, labels, classes)
 
