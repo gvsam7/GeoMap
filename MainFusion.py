@@ -209,8 +209,7 @@ def main():
     # Network
     model = networks(architecture=args.architecture, in_channels=args.in_channels, num_classes=num_classes,
                      pretrained=args.pretrained, requires_grad=args.requires_grad,
-                     global_pooling=args.global_pooling, version=args.version,
-                     **({'final': True} if args.architecture == 'fusionnet' else {})).to(device)
+                     global_pooling=args.global_pooling, version=args.version).to(device)
     print(model)
     n_parameters = parameters(model)
     print(f"The model has {n_parameters:,} trainable parameters")

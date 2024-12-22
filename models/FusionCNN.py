@@ -9,25 +9,13 @@ CNN_arch = {
 
 
 class FusionCNN(nn.Module):
-    def __init__(self, CNN_arch, in_linear, in_channels=3, num_classes=2, final=False):
+    def __init__(self, CNN_arch, in_linear, in_channels=3, num_classes=2):
         super(FusionCNN, self).__init__()
         self.in_channels = in_channels
         self.features = self.conv_layers(CNN_arch)
 
-        # Include avgpool and classifier only for the final CNN
-        self.final = final
-        if final:
-            self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-            self.classifier = nn.Sequential(
-                nn.Linear(in_linear, num_classes)
-            )
-
     def forward(self, x):
         x = self.features(x)
-        if self.final:
-            x = self.avgpool(x)
-            x = x.flatten(1)
-            x = self.classifier(x)
         return x
 
     def conv_layers(self, architecture):
@@ -49,22 +37,22 @@ class FusionCNN(nn.Module):
         return nn.Sequential(*layers)
 
 
-def FusionCNN4(in_channels=3, num_classes=2, final=False):
+def FusionCNN4(in_channels=3, num_classes=2):
     in_linear = CNN_arch['CNN4'][-1]
-    return FusionCNN(CNN_arch['CNN4'], in_linear, in_channels, num_classes, final)
+    return FusionCNN(CNN_arch['CNN4'], in_linear, in_channels, num_classes)
 
 
-def FusionCNN5(in_channels=3, num_classes=2, final=False):
+def FusionCNN5(in_channels=3, num_classes=2):
     in_linear = CNN_arch['CNN5'][-1]
-    return FusionCNN(CNN_arch['CNN5'], in_linear, in_channels, num_classes, final)
+    return FusionCNN(CNN_arch['CNN5'], in_linear, in_channels, num_classes)
 
 
-def FusionCNN6(in_channels=3, num_classes=2, final=False):
+def FusionCNN6(in_channels=3, num_classes=2):
     in_linear = CNN_arch['CNN6'][-1]
-    return FusionCNN(CNN_arch['CNN6'], in_linear, in_channels, num_classes, final)
+    return FusionCNN(CNN_arch['CNN6'], in_linear, in_channels, num_classes)
 
 
-def FusionCNN7(in_channels=3, num_classes=2, final=False):
+def FusionCNN7(in_channels=3, num_classes=2):
     in_linear = CNN_arch['CNN7'][-1]
-    return FusionCNN(CNN_arch['CNN7'], in_linear, in_channels, num_classes, final)
+    return FusionCNN(CNN_arch['CNN7'], in_linear, in_channels, num_classes)
 
