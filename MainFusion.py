@@ -235,42 +235,41 @@ def main():
         model.train()
         sum_acc = 0
         total_batches = 0
-        """
         for dataset_key, dataset in datasets.items():
             # Create DataLoader for each dataset
-            train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)"""
+            # train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
 
-        for data, targets in train_loader:
-            # Split the data according to the branches, assuming you have 5 different inputs
-            b10_data = data
-            b11_data = data
-            b7_data = data
-            b6_data = data
-            b76_data = data
+            for data, targets in train_loader:
+                # Split the data according to the branches, assuming you have 5 different inputs
+                b10_data = data
+                b11_data = data
+                b7_data = data
+                b6_data = data
+                b76_data = data
 
-            # Assuming `data` needs to be split into branches
-            inputs = {
-                'b10': b10_data,
-                'b11': b11_data,
-                'b7': b7_data,
-                'b6': b6_data,
-                'b76': b76_data,
-            }
+                # Assuming `data` needs to be split into branches
+                inputs = {
+                    'b10': b10_data,
+                    'b11': b11_data,
+                    'b7': b7_data,
+                    'b6': b6_data,
+                    'b76': b76_data,
+                }
 
-            # Send data to the device (GPU/CPU)
-            inputs = {key: value.to(device) for key, value in inputs.items()}
-            targets = targets.to(device)
+                # Send data to the device (GPU/CPU)
+                inputs = {key: value.to(device) for key, value in inputs.items()}
+                targets = targets.to(device)
 
-            if args.augmentation == "cutmix":
-                # Implement cutmix augmentation
-                pass
-            elif args.augmentation == "mixup":
-                # Implement mixup augmentation
-                pass
-            else:
-                acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
-                sum_acc += acc
-                total_batches += 1
+                if args.augmentation == "cutmix":
+                    # Implement cutmix augmentation
+                    pass
+                elif args.augmentation == "mixup":
+                    # Implement mixup augmentation
+                    pass
+                else:
+                    acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
+                    sum_acc += acc
+                    total_batches += 1
 
         train_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
         # optimizer.step()
@@ -291,37 +290,37 @@ def main():
         total_batches = 0  # To correctly average over all validation batches
 
         with torch.no_grad():  # Disable gradient computation for validation
-            """for dataset_key, dataset in datasets.items():
+            for dataset_key, dataset in datasets.items():
                 # Create DataLoader for each dataset
-                val_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)"""
+                # val_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
-            for data, targets in val_loader:
-                # Extract individual branches from the data
-                b10_data = data
-                b11_data = data
-                b7_data = data
-                b6_data = data
-                b76_data = data
+                for data, targets in val_loader:
+                    # Extract individual branches from the data
+                    b10_data = data
+                    b11_data = data
+                    b7_data = data
+                    b6_data = data
+                    b76_data = data
 
-                # Create the `inputs` dictionary
-                inputs = {
-                    'b10': b10_data,
-                    'b11': b11_data,
-                    'b7': b7_data,
-                    'b6': b6_data,
-                    'b76': b76_data,
-                }
+                    # Create the `inputs` dictionary
+                    inputs = {
+                        'b10': b10_data,
+                        'b11': b11_data,
+                        'b7': b7_data,
+                        'b6': b6_data,
+                        'b76': b76_data,
+                    }
 
-                # Send data to the device (GPU/CPU)
-                inputs = {key: value.to(device) for key, value in inputs.items()}
-                targets = targets.to(device)
+                    # Send data to the device (GPU/CPU)
+                    inputs = {key: value.to(device) for key, value in inputs.items()}
+                    targets = targets.to(device)
 
-                # Calculate validation metrics (e.g. accuracy, loss)
-                acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=False)
+                    # Calculate validation metrics (e.g. accuracy, loss)
+                    acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=False)
 
-                # Accumulate accuracy across batches
-                sum_acc += acc
-                total_batches += 1
+                    # Accumulate accuracy across batches
+                    sum_acc += acc
+                    total_batches += 1
 
         # Calculate average validation accuracy across all datasets
         val_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
