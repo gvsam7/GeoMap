@@ -49,22 +49,22 @@ class FusionCNN(nn.Module):
         return nn.Sequential(*layers)
 
 
-def FusionCNN4(in_channels=3, num_classes=2):
+def FusionCNN4(in_channels=3, num_classes=2, final=False):
     in_linear = CNN_arch['CNN4'][-1]
-    return FusionCNN(CNN_arch['CNN4'], in_linear, in_channels, num_classes)
+    return FusionCNN(CNN_arch['CNN4'], in_linear, in_channels, num_classes, final)
 
 
-def FusionCNN5(in_channels=3, num_classes=2):
+def FusionCNN5(in_channels=3, num_classes=2, final=False):
     in_linear = CNN_arch['CNN5'][-1]
-    return FusionCNN(CNN_arch['CNN5'], in_linear, in_channels, num_classes)
+    return FusionCNN(CNN_arch['CNN5'], in_linear, in_channels, num_classes, final)
 
 
-def FusionCNN6(in_channels=3, num_classes=2):
+def FusionCNN6(in_channels=3, num_classes=2, final=False):
     in_linear = CNN_arch['CNN6'][-1]
-    return FusionCNN(CNN_arch['CNN6'], in_linear, in_channels, num_classes)
+    return FusionCNN(CNN_arch['CNN6'], in_linear, in_channels, num_classes, final)
 
 
-def FusionCNN7(in_channels=3, num_classes=2):
+def FusionCNN7(in_channels=3, num_classes=2, final=False):
     in_linear = CNN_arch['CNN7'][-1]
-    return FusionCNN(CNN_arch['CNN7'], in_linear, in_channels, num_classes)
+    return FusionCNN(CNN_arch['CNN7'], in_linear, in_channels, num_classes, final)
 
