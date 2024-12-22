@@ -147,7 +147,7 @@ def main():
     labels_b76 = datasets['b76'].classes
 
     # Perform a stratified split for each dataset
-    def stratified_split(dataset):
+    """def stratified_split(dataset):
         y = dataset.targets
         dataset_len = len(dataset)
         X_trainval, X_test, y_trainval, y_test = train_test_split(
@@ -158,6 +158,42 @@ def main():
         X_train, X_val, y_train, y_val = train_test_split(
             X2, y2, test_size=0.2, stratify=y2,
             random_state=args.random_state, shuffle=True)
+        return X_train, X_val, X_test, y_train, y_val, y_test"""
+
+    def stratified_split(dataset):
+        # Get the targets (labels) for stratification
+        y = dataset.targets
+        dataset_len = len(dataset)
+
+        # Debug: Print the class distribution in the original dataset
+        unique, counts = np.unique(y, return_counts=True)
+        print(f"Original dataset size: {dataset_len}")
+        print(f"Original class distribution: {dict(zip(unique, counts))}")
+
+        # Perform the first split (Train+Val / Test)
+        X_trainval, X_test, y_trainval, y_test = train_test_split(
+            np.arange(dataset_len), y, test_size=0.2, stratify=y,
+            random_state=args.random_state, shuffle=True)
+
+        # Debug: Check sizes and class distributions after the first split
+        print(f"Train+Val size: {len(X_trainval)}, Test size: {len(X_test)}")
+        unique_trainval, counts_trainval = np.unique(y_trainval, return_counts=True)
+        unique_test, counts_test = np.unique(y_test, return_counts=True)
+        print(f"Train+Val class distribution: {dict(zip(unique_trainval, counts_trainval))}")
+        print(f"Test class distribution: {dict(zip(unique_test, counts_test))}")
+
+        # Perform the second split (Train / Val)
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_trainval, y_trainval, test_size=0.2, stratify=y_trainval,
+            random_state=args.random_state, shuffle=True)
+
+        # Debug: Check sizes and class distributions after the second split
+        print(f"Train size: {len(X_train)}, Validation size: {len(X_val)}")
+        unique_train, counts_train = np.unique(y_train, return_counts=True)
+        unique_val, counts_val = np.unique(y_val, return_counts=True)
+        print(f"Train class distribution: {dict(zip(unique_train, counts_train))}")
+        print(f"Validation class distribution: {dict(zip(unique_val, counts_val))}")
+
         return X_train, X_val, X_test, y_train, y_val, y_test
 
     # Split each dataset separately
