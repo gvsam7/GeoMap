@@ -276,6 +276,16 @@ def main():
             # train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
 
             for data, targets in train_loader:
+                # Debug: Print the shape and content of the data and targets
+                print(f"Epoch {epoch}: Batch Data Shape: {data.shape}")
+                print(f"Epoch {epoch}: Targets Shape: {targets.shape}")
+                # Optionally, inspect the data/target values, but this can be large.
+                # For large images, printing the first few can be useful
+                print(f"Sample targets (first 5): {targets[:5]}")
+                print(
+                    f"Sample data (first image, shape: {data[0].shape}): {data[0]}")  # Print the first image in the batch
+
+                
                 # Split the data according to the branches, assuming you have 5 different inputs
                 b10_data = data
                 b11_data = data
