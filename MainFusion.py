@@ -364,7 +364,14 @@ def main():
         wandb.sklearn.plot_confusion_matrix(labels, pred_labels, classes)
         wandb.sklearn.plot_class_proportions(labels, labels, classes)
 
-        precision, recall, f1_score, support = precision_recall_fscore_support(labels, pred_labels, average='weighted')
+        # precision, recall, f1_score, support = precision_recall_fscore_support(labels, pred_labels, average='weighted')
+        # Calculate precision, recall, F1 score, and support
+        report = classification_report(labels, pred_labels, target_names=classes, output_dict=True)
+        precision = report['weighted avg']['precision']
+        recall = report['weighted avg']['recall']
+        f1_score = report['weighted avg']['f1-score']
+        support = report['weighted avg']['support']
+
         test_acc = accuracy_score(labels, pred_labels)
         wandb.log({f"Test Accuracy {dataset_key}": test_acc})
 
@@ -374,6 +381,10 @@ def main():
         print(f"recall: {recall}")
         print(f"f1_score: {f1_score}")
         print(f"support: {support}")
+
+        # Print detailed classification report
+        print(
+            f"Classification Report for {dataset_key}:\n{classification_report(labels, pred_labels, target_names=classes)}")
 
         # Save test data in Excel document
         df = DataFrame(
