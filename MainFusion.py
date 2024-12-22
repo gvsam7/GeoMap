@@ -334,7 +334,7 @@ def main():
     # Predictions
     predictions = {}
     for dataset_key, dataset in datasets.items():
-        iterator = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
+        iterator = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
         images, labels, probs = get_fusion_predictions(model, iterator, device)
         predictions[dataset_key] = (images, labels, probs)
 
@@ -353,8 +353,8 @@ def main():
 
         n_images = 48
         classes = ['Cement', 'Landcover']
-        plot_most_incorrect(incorrect_examples, classes, n_images)
-        wandb.save(f'Most_Conf_Incorrect_Pred_{dataset_key}.png')
+        # plot_most_incorrect(incorrect_examples, classes, n_images)
+        # wandb.save(f'Most_Conf_Incorrect_Pred_{dataset_key}.png')
 
         # Confusion Matrix
         plot_fusion_confusion_matrix(labels, pred_labels, classes, dataset_key)
