@@ -9,7 +9,7 @@ from models.Identity import Identity
 from models.EfficientNet import EfficientNet
 
 
-def networks(architecture, in_channels, num_classes, pretrained, requires_grad, global_pooling, version):
+def networks(architecture, in_channels, num_classes, pretrained, requires_grad, global_pooling, version, final):
     if architecture == 'cnn4':
         model = CNN4(in_channels, num_classes)
     elif architecture == 'cnn5':
@@ -28,7 +28,7 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
     elif architecture == 'dilgabmpresnet50':
         model = DilGabMPResNet50(in_channels, num_classes)
     elif architecture == 'fusionnet':
-        model = FusionNet(in_channels, num_classes)
+        model = FusionNet(in_channels, num_classes, final)
     elif architecture == 'tlresnet18':
         model = torchvision.models.resnet18(pretrained)
         if pretrained == 'True':
