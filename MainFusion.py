@@ -99,7 +99,7 @@ def loss_fun(class_weight):
     return criterion
 
 
-def custom_collate_fn(batch):
+"""def custom_collate_fn(batch):
     resize = transforms.Resize((256, 256))
 
     # Process each item in the batch individually
@@ -116,7 +116,43 @@ def custom_collate_fn(batch):
     # Convert labels to a tensor
     labels = torch.tensor(labels)
 
-    return images, labels
+    return images, labels"""
+
+
+def custom_collate_fn(batch):
+    resize = transforms.Resize((256, 256))
+
+    # Assuming each item in batch contains band-specific data
+    band_images = {
+        'b10': [],
+        'b11': [],
+        'b7': [],
+        'b6': [],
+        'b76': []
+    }
+    labels = []
+
+    # Process each item in the batch
+    for item in batch:
+        # Assuming item contains band-specific images and a label
+        images, label = item
+
+        # Process each band
+        for band_name, band_data in images.items():
+            if isinstance(band_data, torch.Tensor):
+                band_images[band_name].append(band_data)
+            else:
+                band_images[band_name].append(transforms.ToTensor()(resize(band_data)))
+
+        labels.append(label)
+
+    # Stack tensors for each band
+    processed_images = {
+        band: torch.stack(images, dim=0)
+        for band, images in band_images.items()
+    }
+
+    return processed_images, torch.tensor(labels)
 
 
 def main():
@@ -271,21 +307,29 @@ def main():
         model.train()
         sum_acc = 0
         total_batches = 0
-        for dataset_key, dataset in datasets.items():
+        for data, targets in train_loader:
+            # data is already a dictionary with band-specific tensors
+            # {'b10': tensor[...], 'b11': tensor[...], etc.}
+            inputs = {key: value.to(device) for key, value in data.items()}
+            targets = targets.to(device)
+
+            if args.augmentation == "cutmix":
+                # Implement cutmix augmentation
+                pass
+            elif args.augmentation == "mixup":
+                # Implement mixup augmentation
+                pass
+            else:
+                acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=True)
+                sum_acc += acc
+                total_batches += 1
+
+        train_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
+        """for dataset_key, dataset in datasets.items():
             # Create DataLoader for each dataset
             # train_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
 
             for data, targets in train_loader:
-                # Debug: Print the shape and content of the data and targets
-                print(f"Epoch {epoch}: Batch Data Shape: {data.shape}")
-                print(f"Epoch {epoch}: Targets Shape: {targets.shape}")
-                # Optionally, inspect the data/target values, but this can be large.
-                # For large images, printing the first few can be useful
-                print(f"Sample targets (first 5): {targets[:5]}")
-                print(
-                    f"Sample data (first image, shape: {data[0].shape}): {data[0]}")  # Print the first image in the batch
-
-                
                 # Split the data according to the branches, assuming you have 5 different inputs
                 b10_data = data
                 b11_data = data
@@ -317,7 +361,7 @@ def main():
                     sum_acc += acc
                     total_batches += 1
 
-        train_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
+        train_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0"""
         # optimizer.step()
         # scheduler.step(train_avg_acc)
 
@@ -336,7 +380,28 @@ def main():
         total_batches = 0  # To correctly average over all validation batches
 
         with torch.no_grad():  # Disable gradient computation for validation
-            for dataset_key, dataset in datasets.items():
+            for data, targets in val_loader:
+                # data is already a dictionary with band-specific tensors from custom_collate_fn
+                inputs = {key: value.to(device) for key, value in data.items()}
+                targets = targets.to(device)
+
+                # Calculate validation metrics
+                acc, loss = step(inputs, targets, model=model, optimizer=optimizer, criterion=criterion, train=False)
+
+                # Accumulate accuracy across batches
+                sum_acc += acc
+                total_batches += 1
+
+            # Calculate average validation accuracy
+            val_avg_acc = sum_acc / total_batches if total_batches > 0 else 0.0
+
+            print(
+                f"Epoch: {epoch + 1} \tTraining accuracy: {train_avg_acc:.2f} \n\t\tValidation accuracy: {val_avg_acc:.2f}"
+            )
+
+            train_steps = len(train_loader) * (epoch + 1)
+            wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
+            """for dataset_key, dataset in datasets.items():
                 # Create DataLoader for each dataset
                 # val_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
@@ -375,15 +440,18 @@ def main():
             f"Epoch: {epoch + 1} \tTraining accuracy: {train_avg_acc:.2f} \n\t\tValidation accuracy: {val_avg_acc:.2f}")
 
         train_steps = len(train_loader) * (epoch + 1)
-        wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)
+        wandb.log({"Train Accuracy": train_avg_acc, "Validation Accuracy": val_avg_acc}, step=train_steps)"""
 
     # Predictions
     predictions = {}
-    for dataset_key, dataset in datasets.items():
+    iterator = prediction_loader
+    images, labels, probs = get_predictions(model, iterator, device)
+    predictions = (images, labels, probs)
+    """for dataset_key, dataset in datasets.items():
         # iterator = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
         iterator = prediction_loader
         images, labels, probs = get_fusion_predictions(model, iterator, device)
-        predictions[dataset_key] = (images, labels, probs)
+        predictions[dataset_key] = (images, labels, probs)"""
 
     # Generate and plot confusion matrices for each dataset
     for dataset_key, (images, labels, probs) in predictions.items():
