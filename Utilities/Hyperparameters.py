@@ -30,6 +30,6 @@ def arguments():
                                                                 "vgg13=VGG13, tlvgg13=pretrain VGG13,"
                                                                 "effivientnet=EfficientNet,"
                                                                 "tldensenet161=pretrain DenseNet161,"
-                                                                "fusionnet=FusionNet, vgg13fusionnet=VGG13FusionNet")
+                                                                "fusionnet=FusionNet, resfusionnet=ResFusionNet")
 
     return parser.parse_args()

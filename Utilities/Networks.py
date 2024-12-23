@@ -3,7 +3,7 @@ from torch import nn
 from models.ResNet import ResNet18, ResNet50
 from models.DilGabMPResNet18 import DilGabMPResNet18, DilGabMPResNet50
 from models.FusionNet import FusionNet
-from models.VGG13FusionNet import VGG13FusionNet
+from models.ResFusionNet import ResFusionNet
 from models.CNN import CNN4, CNN5, CNN6, CNN7
 from models.VGG import VGG13
 from models.Identity import Identity
@@ -30,8 +30,8 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
         model = DilGabMPResNet50(in_channels, num_classes)
     elif architecture == 'fusionnet':
         model = FusionNet(in_channels, num_classes)
-    elif architecture == 'vgg13fusionnet':
-        model = VGG13FusionNet(in_channels, num_classes)
+    elif architecture == 'resfusionnet':
+        model = ResFusionNet(in_channels, num_classes)
     elif architecture == 'tlresnet18':
         model = torchvision.models.resnet18(pretrained)
         if pretrained == 'True':
