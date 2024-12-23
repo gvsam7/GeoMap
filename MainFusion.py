@@ -235,7 +235,7 @@ def main():
         model.train()
         sum_acc = 0
         total_batches = 0
-        for dataset_key, train_dataset in datasets.items():
+        for dataset_key, train_dataset in train_dataset.items():
             # Create DataLoader for each dataset
             train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
 
@@ -290,7 +290,7 @@ def main():
         total_batches = 0  # To correctly average over all validation batches
 
         with torch.no_grad():  # Disable gradient computation for validation
-            for dataset_key, val_dataset in datasets.items():
+            for dataset_key, val_dataset in val_dataset.items():
                 # Create DataLoader for each dataset
                 val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
@@ -333,7 +333,7 @@ def main():
 
     # Predictions
     predictions = {}
-    for dataset_key, test_dataset in datasets.items():
+    for dataset_key, test_dataset in test_dataset.items():
         iterator = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
         # iterator = prediction_loader
         images, labels, probs = get_fusion_predictions(model, iterator, device)
