@@ -239,13 +239,13 @@ def main():
             # Create DataLoader for each dataset
             train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
 
-            for data, targets in train_loader:
+            for train_data, targets in train_loader:
                 # Split the data according to the branches, assuming you have 5 different inputs
-                b10_data = data
-                b11_data = data
-                b7_data = data
-                b6_data = data
-                b76_data = data
+                b10_data = train_data
+                b11_data = train_data
+                b7_data = train_data
+                b6_data = train_data
+                b76_data = train_data
 
                 # Assuming `data` needs to be split into branches
                 inputs = {
@@ -290,17 +290,17 @@ def main():
         total_batches = 0  # To correctly average over all validation batches
 
         with torch.no_grad():  # Disable gradient computation for validation
-            for dataset_key, val_dataset in val_dataset.items():
+            for dataset_key, val_dataset in datasets.items():
                 # Create DataLoader for each dataset
                 val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
-                for data, targets in val_loader:
+                for val_data, targets in val_loader:
                     # Extract individual branches from the data
-                    b10_data = data
-                    b11_data = data
-                    b7_data = data
-                    b6_data = data
-                    b76_data = data
+                    b10_data = val_data
+                    b11_data = val_data
+                    b7_data = val_data
+                    b6_data = val_data
+                    b76_data = val_data
 
                     # Create the `inputs` dictionary
                     inputs = {
@@ -333,7 +333,7 @@ def main():
 
     # Predictions
     predictions = {}
-    for dataset_key, test_dataset in test_dataset.items():
+    for dataset_key, test_dataset in datasets.items():
         iterator = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
         # iterator = prediction_loader
         images, labels, probs = get_fusion_predictions(model, iterator, device)
