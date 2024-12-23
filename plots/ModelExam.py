@@ -20,13 +20,13 @@ def get_fusion_predictions(model, iterator, device):
     probs = []
 
     with torch.no_grad():
-        for test_data, targets in iterator:
+        for data, targets in iterator:
             # Extract individual branches from the data
-            b10_data = test_data
-            b11_data = test_data
-            b7_data = test_data
-            b6_data = test_data
-            b76_data = test_data
+            b10_data = data
+            b11_data = data
+            b7_data = data
+            b6_data = data
+            b76_data = data
 
             # Create the `inputs` dictionary
             inputs = {

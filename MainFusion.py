@@ -36,7 +36,7 @@ from plots.ModelExam import get_fusion_predictions, plot_fusion_confusion_matrix
 import pandas as pd
 import wandb
 
-
+"""
 def step(data, targets, model, optimizer, criterion, train):
     with torch.set_grad_enabled(train):
         outputs = model(data)
@@ -48,8 +48,35 @@ def step(data, targets, model, optimizer, criterion, train):
         loss.backward()
         optimizer.step()
 
+    return acc, loss"""
+
+
+def step(data, targets, model, optimizer, criterion, train, device):
+    # Move data and targets to the correct device
+    if isinstance(data, dict):  # For fusion models, handle dictionaries
+        data = {key: value.to(device) for key, value in data.items()}
+    else:  # For single-tensor inputs
+        data = data.to(device)
+
+    targets = targets.to(device)
+
+    # Enable/disable gradient computation based on train mode
+    with torch.set_grad_enabled(train):
+        outputs = model(data)  # Forward pass
+
+        # Ensure outputs and targets have compatible shapes
+        acc = outputs.argmax(dim=1).eq(targets).sum().item()
+        loss = criterion(outputs, targets)
+
+        # Backward pass and optimization (only in training)
+        if train:
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
     return acc, loss
 
+"""
 @torch.no_grad()
 def get_all_preds(model, loader, device):
     all_preds = []
@@ -57,6 +84,25 @@ def get_all_preds(model, loader, device):
         x = x.to(device)
         preds = model(x)
         all_preds.append(preds)
+    all_preds = torch.cat(all_preds, dim=0).cpu()
+    return all_preds"""
+
+
+@torch.no_grad()
+def get_all_preds(model, loader, device):
+    all_preds = []
+
+    # Loop through the data loader
+    for data, _ in loader:
+        if isinstance(data, dict):  # For fusion models, handle dictionaries
+            data = {key: value.to(device) for key, value in data.items()}
+        else:  # For single-tensor inputs
+            data = data.to(device)
+
+        preds = model(data)  # Forward pass
+        all_preds.append(preds)  # Store predictions
+
+    # Concatenate all predictions into a single tensor
     all_preds = torch.cat(all_preds, dim=0).cpu()
     return all_preds
 
@@ -239,13 +285,13 @@ def main():
             # Create DataLoader for each dataset
             train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
 
-            for train_data, targets in train_loader:
+            for data, targets in train_loader:
                 # Split the data according to the branches, assuming you have 5 different inputs
-                b10_data = train_data
-                b11_data = train_data
-                b7_data = train_data
-                b6_data = train_data
-                b76_data = train_data
+                b10_data = data
+                b11_data = data
+                b7_data = data
+                b6_data = data
+                b76_data = data
 
                 # Assuming `data` needs to be split into branches
                 inputs = {
@@ -294,13 +340,13 @@ def main():
                 # Create DataLoader for each dataset
                 val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
-                for val_data, targets in val_loader:
+                for data, targets in val_loader:
                     # Extract individual branches from the data
-                    b10_data = val_data
-                    b11_data = val_data
-                    b7_data = val_data
-                    b6_data = val_data
-                    b76_data = val_data
+                    b10_data = data
+                    b11_data = data
+                    b7_data = data
+                    b6_data = data
+                    b76_data = data
 
                     # Create the `inputs` dictionary
                     inputs = {
