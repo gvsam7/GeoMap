@@ -36,7 +36,7 @@ from plots.ModelExam import get_fusion_predictions, plot_fusion_confusion_matrix
 import pandas as pd
 import wandb
 
-"""
+
 def step(data, targets, model, optimizer, criterion, train):
     with torch.set_grad_enabled(train):
         outputs = model(data)
@@ -48,61 +48,15 @@ def step(data, targets, model, optimizer, criterion, train):
         loss.backward()
         optimizer.step()
 
-    return acc, loss"""
-
-
-def step(data, targets, model, optimizer, criterion, train):
-    # Move data and targets to the correct device
-    if isinstance(data, dict):  # For fusion models, handle dictionaries
-        data = {key: value for key, value in data.items()}
-    else:  # For single-tensor inputs
-        data = data
-
-    targets = targets
-
-    # Enable/disable gradient computation based on train mode
-    with torch.set_grad_enabled(train):
-        outputs = model(data)  # Forward pass
-
-        # Ensure outputs and targets have compatible shapes
-        acc = outputs.argmax(dim=1).eq(targets).sum().item()
-        loss = criterion(outputs, targets)
-
-        # Backward pass and optimization (only in training)
-        if train:
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
     return acc, loss
 
-"""
 @torch.no_grad()
 def get_all_preds(model, loader, device):
     all_preds = []
-    for x, _ in loader:
-        x = x.to(device)
+    for batch_data, _ in loader:
+        x = {key: value.to(device) for key, value in batch_data.items()}  # x.to(device)
         preds = model(x)
         all_preds.append(preds)
-    all_preds = torch.cat(all_preds, dim=0).cpu()
-    return all_preds"""
-
-
-@torch.no_grad()
-def get_all_preds(model, loader, device):
-    all_preds = []
-
-    # Loop through the data loader
-    for data, _ in loader:
-        if isinstance(data, dict):  # For fusion models, handle dictionaries
-            data = {key: value.to(device) for key, value in data.items()}
-        else:  # For single-tensor inputs
-            data = data.to(device)
-
-        preds = model(data)  # Forward pass
-        all_preds.append(preds)  # Store predictions
-
-    # Concatenate all predictions into a single tensor
     all_preds = torch.cat(all_preds, dim=0).cpu()
     return all_preds
 
