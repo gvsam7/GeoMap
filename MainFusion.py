@@ -235,7 +235,16 @@ def main():
         model.train()
         sum_acc = 0
         total_batches = 0
-        for dataset_key, train_dataset in datasets.items():
+
+        train_datasets = {
+            'b10': train_ds_b10,
+            'b11': train_ds_b11,
+            'b7': train_ds_b7,
+            'b6': train_ds_b6,
+            'b76': train_ds_b76
+        }
+
+        for dataset_key, train_dataset in train_datasets.items():
             # Create DataLoader for each dataset
             train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=custom_collate_fn)
 
@@ -289,8 +298,16 @@ def main():
         sum_acc = 0
         total_batches = 0  # To correctly average over all validation batches
 
+        val_datasets = {
+            'b10': val_ds_b10,
+            'b11': val_ds_b11,
+            'b7': val_ds_b7,
+            'b6': val_ds_b6,
+            'b76': val_ds_b76
+        }
+
         with torch.no_grad():  # Disable gradient computation for validation
-            for dataset_key, val_dataset in datasets.items():
+            for dataset_key, val_dataset in val_datasets.items():
                 # Create DataLoader for each dataset
                 val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
