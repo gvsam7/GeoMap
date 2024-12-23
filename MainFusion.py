@@ -51,14 +51,14 @@ def step(data, targets, model, optimizer, criterion, train):
     return acc, loss"""
 
 
-def step(data, targets, model, optimizer, criterion, train, device):
+def step(data, targets, model, optimizer, criterion, train):
     # Move data and targets to the correct device
     if isinstance(data, dict):  # For fusion models, handle dictionaries
-        data = {key: value.to(device) for key, value in data.items()}
+        data = {key: value for key, value in data.items()}
     else:  # For single-tensor inputs
-        data = data.to(device)
+        data = data
 
-    targets = targets.to(device)
+    targets = targets
 
     # Enable/disable gradient computation based on train mode
     with torch.set_grad_enabled(train):
