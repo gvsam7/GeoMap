@@ -1,23 +1,23 @@
 import torch
 import torch.nn as nn
-from models.ResNet import ResNet50
-from models.ResNetFusion import ResNetFusion50
+from models.ResNet import ResNet18
+from models.ResNetFusion import ResNetFusion18
 
 
 class ResFusionNet(nn.Module):
     def __init__(self, in_channels=3, num_classes=2):
         super().__init__()
-        self.b10_CNN = ResNetFusion50(in_channels, num_classes)
-        self.b11_CNN = ResNetFusion50(in_channels, num_classes)
-        self.b7_CNN = ResNetFusion50(in_channels, num_classes)
-        self.b6_CNN = ResNetFusion50(in_channels, num_classes)
-        self.b76_CNN = ResNetFusion50(in_channels, num_classes)
+        self.b10_CNN = ResNetFusion18(in_channels, num_classes)
+        self.b11_CNN = ResNetFusion18(in_channels, num_classes)
+        self.b7_CNN = ResNetFusion18(in_channels, num_classes)
+        self.b6_CNN = ResNetFusion18(in_channels, num_classes)
+        self.b76_CNN = ResNetFusion18(in_channels, num_classes)
 
         # Fully connected layers for fusion
         # cnn_out_features = self.b10_CNN.classifier[0].in_features  # Access first Linear layer's input features
         cnn_out_features = 2048
         # Final fusion CNN (includes avgpool and classifier)
-        self.fusion_CNN = ResNet50(5 * cnn_out_features, num_classes=num_classes)
+        self.fusion_CNN = ResNet18(5 * cnn_out_features, num_classes=num_classes)
         """
         self.fc = nn.Sequential(
             nn.Linear(5 * cnn_out_features, 512),  # Combine features from all backbones
