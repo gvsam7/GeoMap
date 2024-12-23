@@ -15,7 +15,7 @@ class ResFusionNet(nn.Module):
 
         # Fully connected layers for fusion
         # cnn_out_features = self.b10_CNN.classifier[0].in_features  # Access first Linear layer's input features
-        cnn_out_features = 512
+        cnn_out_features = 2048
         # Final fusion CNN (includes avgpool and classifier)
         self.fusion_CNN = ResNet50(5 * cnn_out_features, num_classes=num_classes)
         """
