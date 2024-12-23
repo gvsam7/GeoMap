@@ -53,8 +53,8 @@ def step(data, targets, model, optimizer, criterion, train):
 @torch.no_grad()
 def get_all_preds(model, loader, device):
     all_preds = []
-    for batch_data, _ in loader:
-        x = {key: value.to(device) for key, value in batch_data.items()}  # x.to(device)
+    for x, _ in loader:
+        x = x.to(device)
         preds = model(x)
         all_preds.append(preds)
     all_preds = torch.cat(all_preds, dim=0).cpu()
@@ -333,7 +333,15 @@ def main():
 
     # Predictions
     predictions = {}
-    for dataset_key, test_dataset in datasets.items():
+    test_datasets = {
+        'b10': test_ds_b10,
+        'b11': test_ds_b11,
+        'b7': test_ds_b7,
+        'b6': test_ds_b6,
+        'b76': test_ds_b76
+    }
+
+    for dataset_key, test_dataset in test_datasets.items():
         iterator = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=custom_collate_fn)
         # iterator = prediction_loader
         images, labels, probs = get_fusion_predictions(model, iterator, device)
