@@ -64,23 +64,23 @@ class DilGaborMPCNN(nn.Module):
     def __init__(self, in_channels=3, num_classes=2, num_level=3, pool_type='average_pool'):
         super(DilGaborMPCNN, self).__init__()
         self.features = nn.Sequential(
-            GaborConv2d(in_channels, out_channels=32, kernel_size=(3, 3)),
+            GaborConv2d(in_channels, out_channels=32, kernel_size=(3, 3), padding=(1, 1)),
             nn.ReLU(inplace=True),
             MixPool(2, 2, 0, 1),
             nn.BatchNorm2d(32),
-            nn.Conv2d(32, 64, (3, 3)),
+            nn.Conv2d(32, 64, (3, 3), padding=(1, 1)),
             nn.ReLU(inplace=True),
             MixPool(2, 2, 0, 0.6),
             nn.BatchNorm2d(64),
-            nn.Conv2d(64, 128, (3, 3)),
+            nn.Conv2d(64, 128, (3, 3), padding=(1, 1)),
             nn.ReLU(inplace=True),
             MixPool(2, 2, 0, 0.2),
             nn.BatchNorm2d(128),
-            nn.Conv2d(128, 256, (3, 3)),
+            nn.Conv2d(128, 256, (3, 3), padding=(1, 1)),
             nn.ReLU(inplace=True),
             MixPool(2, 2, 0, 0.2),
             nn.BatchNorm2d(256),
-            nn.Conv2d(256, 512, (3, 3)),
+            nn.Conv2d(256, 512, (3, 3), padding=(1, 1)),
             nn.ReLU(inplace=True),
             DACBlock(512, 512)
         )
