@@ -1,4 +1,7 @@
 from torch import nn
+from models.GaborLayer import GaborConv2d
+from models.MixPool import MixPool
+from models.Block import DACBlock
 
 CNN_arch = {
     'CNN4': [32, 'M', 64, 'M', 128, 'M', 256],
@@ -55,4 +58,34 @@ def FusionCNN6(in_channels=3, num_classes=2):
 def FusionCNN7(in_channels=3, num_classes=2):
     in_linear = CNN_arch['CNN7'][-1]
     return FusionCNN(CNN_arch['CNN7'], in_linear, in_channels, num_classes)
+
+
+class DilGaborMPCNN(nn.Module):
+    def __init__(self, in_channels=3, num_classes=2, num_level=3, pool_type='average_pool'):
+        super(DilGaborMPCNN, self).__init__()
+        self.features = nn.Sequential(
+            GaborConv2d(in_channels, out_channels=32, kernel_size=(3, 3)),
+            nn.ReLU(inplace=True),
+            MixPool(2, 2, 0, 1),
+            nn.BatchNorm2d(32),
+            nn.Conv2d(32, 64, (3, 3)),
+            nn.ReLU(inplace=True),
+            MixPool(2, 2, 0, 0.6),
+            nn.BatchNorm2d(64),
+            nn.Conv2d(64, 128, (3, 3)),
+            nn.ReLU(inplace=True),
+            MixPool(2, 2, 0, 0.2),
+            nn.BatchNorm2d(128),
+            nn.Conv2d(128, 256, (3, 3)),
+            nn.ReLU(inplace=True),
+            MixPool(2, 2, 0, 0.2),
+            nn.BatchNorm2d(256),
+            nn.Conv2d(256, 512, (3, 3)),
+            nn.ReLU(inplace=True),
+            DACBlock(512, 512)
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        return x
 
