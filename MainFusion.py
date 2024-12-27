@@ -90,7 +90,7 @@ def database(data):
 def loss_fun(class_weight):
     if class_weight == 'True':
         # use class weighting for unbalanced dataset
-        weights = [5, 1]
+        weights = [3, 1]
         class_weights = torch.FloatTensor(weights).cuda()
         criterion = nn.CrossEntropyLoss(weight=class_weights)
     else:
