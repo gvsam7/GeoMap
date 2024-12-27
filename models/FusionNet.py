@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from models.CNN import CNN5
 from models.FusionCNN import FusionCNN5, DilGaborMPCNN
+from models.ChannelAttention import ChannelAttention
 
 
 class FusionNet(nn.Module):
@@ -21,6 +22,7 @@ class FusionNet(nn.Module):
         # Fully connected layers for fusion
         # cnn_out_features = self.b10_CNN.classifier[0].in_features  # Access first Linear layer's input features
         cnn_out_features = 512
+        self.channel_attention = ChannelAttention(5 * cnn_out_features)  # For the concatenated feature map
         # Final fusion CNN (includes avgpool and classifier)
         self.fusion_CNN = CNN5(5 * cnn_out_features, num_classes=num_classes)
         """
@@ -42,8 +44,14 @@ class FusionNet(nn.Module):
         # Concatenate the outputs
         fused_features = torch.cat((b10_out, b11_out, b7_out, b6_out, b76_out), dim=1)
 
+        # Apply Channel Attention to refine the concatenated features
+        refined_features = self.channel_attention(fused_features)  # Shape: [batch_size, 5 * features, h, w]
+
+        # Final classification through the fusion CNN
+        output = self.fusion_CNN(refined_features)
+
         # Final classification
         # output = self.fc(fused_features)
-        output = self.fusion_CNN(fused_features)
+        # output = self.fusion_CNN(fused_features)
         
         return output
