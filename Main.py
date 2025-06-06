@@ -251,7 +251,10 @@ def main():
     incorrect_examples.sort(reverse=True, key=lambda x: torch.max(x[2], dim=0).values)
 
     n_images = 48
-    classes = ['Cement', 'Landcover']
+    # classes = ['Cement', 'Landcover']
+    classes = dataset.classes  # Dynamically retrieves class names
+    print(f"Classes detected: {classes}")
+
     plot_most_incorrect(incorrect_examples, classes, n_images)
     wandb.save('Most_Conf_Incorrect_Pred.png')
 
