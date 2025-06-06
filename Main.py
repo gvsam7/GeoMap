@@ -168,8 +168,8 @@ def main():
     print(f"The model has {n_parameters:,} trainable parameters")
 
     # Loss and optimizer
-    # criterion = nn.CrossEntropyLoss()
-    criterion = loss_fun(args.class_weighting)
+    criterion = nn.CrossEntropyLoss()
+    # criterion = loss_fun(args.class_weighting)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     # Define Scheduler
