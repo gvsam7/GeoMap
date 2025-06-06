@@ -6,6 +6,7 @@ from models.FusionNet import FusionNet
 from models.ResFusionNet import ResFusionNet
 from models.CNN import CNN4, CNN5, CNN6, CNN7
 from models.VGG import VGG13
+from models.ViT import ViT
 from models.Identity import Identity
 from models.EfficientNet import EfficientNet
 
@@ -28,6 +29,8 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
         model = DilGabMPResNet18(in_channels, num_classes)
     elif architecture == 'dilgabmpresnet50':
         model = DilGabMPResNet50(in_channels, num_classes)
+    elif architecture == 'vit':
+        model = ViT(in_channels, num_classes)
     elif architecture == 'fusionnet':
         model = FusionNet(in_channels, num_classes)
     elif architecture == 'resfusionnet':

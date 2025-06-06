@@ -20,7 +20,8 @@ def arguments():
     parser.add_argument("--requires-grad", default=False)
     parser.add_argument("--global-pooling", default=None)
     parser.add_argument("--class-weighting", default=False)
-    parser.add_argument("--dataset", default="b10", help="b6, b7, b10, b11, b76")
+    parser.add_argument("--dataset", default="b10", help="b6, b7, b10, b11, b76, TreeCrown512, TreeCrown256, "
+                                                         "TreeCrown128")
     parser.add_argument("--version", default="b0", help="b1:b7")
     parser.add_argument("--architecture", default="cnn_5", help="cnn4=CNN4, cnn5=CNN5, cnn6=CNN6, cnn7=CNN7,"
                                                                 "resnet18=ResNet18, dilgabmpresnet18=DilGabMPResNet18,"
@@ -30,6 +31,7 @@ def arguments():
                                                                 "vgg13=VGG13, tlvgg13=pretrain VGG13,"
                                                                 "effivientnet=EfficientNet,"
                                                                 "tldensenet161=pretrain DenseNet161,"
-                                                                "fusionnet=FusionNet, resfusionnet=ResFusionNet")
+                                                                "fusionnet=FusionNet, resfusionnet=ResFusionNet, "
+                                                                "vit=ViT")
 
     return parser.parse_args()

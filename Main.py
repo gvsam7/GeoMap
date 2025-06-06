@@ -65,6 +65,12 @@ def database(data):
         dataset = ImageFolder("Sat_Data_b7")
     elif data == 'b76':
         dataset = ImageFolder("Sat_Data_b76")
+    elif data == 'TreeCrown512':
+        dataset = ImageFolder("TreeCrown_512")
+    elif data == 'TreeCrown256':
+        dataset = ImageFolder("TreeCrown_256")
+    elif data == 'TreeCrown_128':
+        dataset = ImageFolder("TreeCrown_128")
     elif data == 'fusion':
         # Load each dataset separately; fusion happens at the model level
         dataset = {
