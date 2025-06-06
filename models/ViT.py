@@ -63,9 +63,10 @@ class ViT(nn.Module):
         patches = patches.permute(0, 2, 3, 1, 4, 5).reshape(bs, -1, c * self.patch_size * self.patch_size)
         return patches
 
-
+"""
 # Test Validation
 dummy_image = torch.randn(4, 3, 256, 256)  # Batch size=4, 3-channels, 256x256 image
 vit = ViT(img_size=256, in_channels=3, patch_size=16, hidden_size=128, num_layers=4, num_heads=4, num_class=2)
 patches = vit.extract_patches(dummy_image)
 print(patches.shape)  # Expected: (4, (256//16)**2, 3*16*16) = (4, 256, 768)
+"""
