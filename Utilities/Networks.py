@@ -9,6 +9,7 @@ from models.VGG import VGG13
 from models.ViT import ViT
 from models.Identity import Identity
 from models.EfficientNet import EfficientNet
+from models.DGMPCNN5 import DGMPCNN5
 
 
 def networks(architecture, in_channels, num_classes, pretrained, requires_grad, global_pooling, version):
@@ -20,6 +21,8 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
         model = CNN6(in_channels, num_classes)
     elif architecture == 'cnn7':
         model = CNN7(in_channels, num_classes)
+    elif architecture == 'dgmpcnn5':
+        model = DGMPCNN5(in_channels, num_classes)
     elif architecture == 'efficientnet':
         print(f"version: {version}")
         model = EfficientNet(version, num_classes)

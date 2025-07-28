@@ -32,6 +32,6 @@ def arguments():
                                                                 "effivientnet=EfficientNet,"
                                                                 "tldensenet161=pretrain DenseNet161,"
                                                                 "fusionnet=FusionNet, resfusionnet=ResFusionNet, "
-                                                                "vit=ViT")
+                                                                "vit=ViT, dgmpcnn5=DGMPCNN5")
 
     return parser.parse_args()
