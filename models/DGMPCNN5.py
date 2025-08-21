@@ -8,7 +8,8 @@ class DGMPCNN5(nn.Module):
     def __init__(self, in_channels, num_classes=2):
         super(DGMPCNN5, self).__init__()
         self.features = nn.Sequential(
-            GaborConv2d(in_channels, out_channels=32, kernel_size=(3, 3)),
+            # GaborConv2d(in_channels, out_channels=32, kernel_size=(3, 3)),
+            nn.Conv2d(in_channels, out_channels=32, kernel_size=(3, 3)),
             nn.ReLU(inplace=True),
             MixPool(2, 2, 0, 1),
             nn.BatchNorm2d(32),
