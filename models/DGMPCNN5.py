@@ -27,7 +27,7 @@ class DGMPCNN5(nn.Module):
             nn.BatchNorm2d(256),
             nn.Conv2d(256, 512, (3, 3)),
             nn.ReLU(inplace=True),
-            DACBlock(512, 512)
+            # DACBlock(512, 512)
         )
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
