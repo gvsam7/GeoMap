@@ -1,5 +1,5 @@
 import torch.nn as nn
-from models.Block import block
+from models.Block import block, BasicBlock
 
 
 class ResNet(nn.Module):
@@ -18,7 +18,8 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, layers[3], out_channels=512, stride=2)  # 2048
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(512 * 4, num_classes)
+        # self.fc = nn.Linear(512 * 4, num_classes)
+        self.fc = nn.Linear(512 * block.expansion, num_classes)  # ResNet18 only!
 
     def forward(self, x):
         x = self.conv1(x)
@@ -57,7 +58,7 @@ class ResNet(nn.Module):
 
 
 def ResNet18(in_channels, num_classes=2):
-    return ResNet(block, [2, 2, 2, 2], in_channels, num_classes)
+    return ResNet(BasicBlock, [2, 2, 2, 2], in_channels, num_classes)
 
 
 def ResNet50(in_channels=3, num_classes=2):
