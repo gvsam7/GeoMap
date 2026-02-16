@@ -38,7 +38,7 @@ class ResNet(nn.Module):
 
         return x
 
-    def _make_layer(self, block, num_residual_blocks, out_channels, stride):
+    """def _make_layer(self, block, num_residual_blocks, out_channels, stride):
         identity_downsample = None
         layers = []
 
@@ -53,6 +53,28 @@ class ResNet(nn.Module):
 
         for i in range(num_residual_blocks - 1):
             layers.append(block(self.in_channels, out_channels))  # 256 -> 64, o/p=64*4
+
+        return nn.Sequential(*layers)"""
+
+    def _make_layer(self, block, num_residual_blocks, out_channels, stride):
+        identity_downsample = None
+        layers = []
+
+        # Use block.expansion instead of hard-coded 4
+        if stride != 1 or self.in_channels != out_channels * block.expansion:
+            identity_downsample = nn.Sequential(
+                nn.Conv2d(self.in_channels, out_channels * block.expansion, kernel_size=1, stride=stride),
+                nn.BatchNorm2d(out_channels * block.expansion),
+            )
+
+        # first block may need identity_downsample and stride
+        layers.append(block(self.in_channels, out_channels, identity_downsample, stride))
+        # update in_channels according to the block expansion
+        self.in_channels = out_channels * block.expansion
+
+        # remaining blocks
+        for i in range(num_residual_blocks - 1):
+            layers.append(block(self.in_channels, out_channels))
 
         return nn.Sequential(*layers)
 
