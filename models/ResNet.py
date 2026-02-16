@@ -19,7 +19,7 @@ class ResNet(nn.Module):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         # self.fc = nn.Linear(512 * 4, num_classes)
-        self.fc = nn.Linear(512 * block.expansion, num_classes)  # ResNet18 only!
+        self.fc = nn.Linear(512 * block.expansion, num_classes)  # 16_02_2026 ResNet18 only!
 
     def forward(self, x):
         x = self.conv1(x)
@@ -56,6 +56,7 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)"""
 
+    # 16_02_2026 ResNet18
     def _make_layer(self, block, num_residual_blocks, out_channels, stride):
         identity_downsample = None
         layers = []
@@ -80,7 +81,7 @@ class ResNet(nn.Module):
 
 
 def ResNet18(in_channels, num_classes=2):
-    return ResNet(BasicBlock, [2, 2, 2, 2], in_channels, num_classes)
+    return ResNet(BasicBlock, [2, 2, 2, 2], in_channels, num_classes)  # 16_02_2026 ResNet18
 
 
 def ResNet50(in_channels=3, num_classes=2):

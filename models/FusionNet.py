@@ -8,16 +8,16 @@ from models.ChannelAttention import ChannelAttention
 class FusionNet(nn.Module):
     def __init__(self, in_channels=3, num_classes=2):
         super().__init__()
-        self.b10_CNN = FusionCNN5(in_channels, num_classes)
-        self.b11_CNN = FusionCNN5(in_channels, num_classes)
-        self.b7_CNN = FusionCNN5(in_channels, num_classes)
-        self.b6_CNN = FusionCNN5(in_channels, num_classes)
-        self.b76_CNN = FusionCNN5(in_channels, num_classes)
-        # self.b10_CNN = DilGaborMPCNN(in_channels, num_classes)
-        # self.b11_CNN = DilGaborMPCNN(in_channels, num_classes)
-        # self.b7_CNN = DilGaborMPCNN(in_channels, num_classes)
-        # self.b6_CNN = DilGaborMPCNN(in_channels, num_classes)
-        # self.b76_CNN = DilGaborMPCNN(in_channels, num_classes)
+        # self.b10_CNN = FusionCNN5(in_channels, num_classes)
+        # self.b11_CNN = FusionCNN5(in_channels, num_classes)
+        # self.b7_CNN = FusionCNN5(in_channels, num_classes)
+        # self.b6_CNN = FusionCNN5(in_channels, num_classes)
+        # self.b76_CNN = FusionCNN5(in_channels, num_classes)
+        self.b10_CNN = DilGaborMPCNN(in_channels, num_classes)
+        self.b11_CNN = DilGaborMPCNN(in_channels, num_classes)
+        self.b7_CNN = DilGaborMPCNN(in_channels, num_classes)
+        self.b6_CNN = DilGaborMPCNN(in_channels, num_classes)
+        self.b76_CNN = DilGaborMPCNN(in_channels, num_classes)
 
         # Fully connected layers for fusion
         # cnn_out_features = self.b10_CNN.classifier[0].in_features  # Access first Linear layer's input features
