@@ -56,11 +56,11 @@ def main():
         batch_size = args.batch_size
         if args.architecture.lower() in ["fusionnet", "resfusionnet"]:
             dummy_input = {
-                'b10': torch.randn(batch_size, 1, args.height, args.width).to(device),
-                'b11': torch.randn(batch_size, 1, args.height, args.width).to(device),
-                'b6': torch.randn(batch_size, 1, args.height, args.width).to(device),
-                'b7': torch.randn(batch_size, 1, args.height, args.width).to(device),
-                'b76': torch.randn(batch_size, 1, args.height, args.width).to(device),
+                'b10': torch.randn(batch_size, 3, args.height, args.width).to(device),
+                'b11': torch.randn(batch_size, 3, args.height, args.width).to(device),
+                'b6': torch.randn(batch_size, 3, args.height, args.width).to(device),
+                'b7': torch.randn(batch_size, 3, args.height, args.width).to(device),
+                'b76': torch.randn(batch_size, 3, args.height, args.width).to(device),
             }
         else:
             dummy_input = torch.randn(
