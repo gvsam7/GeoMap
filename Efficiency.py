@@ -5,6 +5,22 @@ from ptflops import get_model_complexity_info
 
 from Main import networks, arguments  # uses your existing functions
 
+class FusionWrapper(torch.nn.Module):
+    def __init__(self, model, in_channels):
+        super().__init__()
+        self.model = model
+        self.in_channels = in_channels  # should be 3
+
+    def forward(self, x):
+        # x shape: [B, 15, H, W] (5 branches × 3 channels)
+        return self.model({
+            'b10': x[:, 0:3],
+            'b11': x[:, 3:6],
+            'b6':  x[:, 6:9],
+            'b7':  x[:, 9:12],
+            'b76': x[:, 12:15],
+        })
+
 
 def main():
 
@@ -37,9 +53,19 @@ def main():
     # -----------------------------
     # 2) FLOPs / GFLOPs
     # -----------------------------
+    if args.architecture.lower() in ["fusionnet"]:
+
+        # 5 branches × 3 channels each = 15 total channels
+        wrapped_model = FusionWrapper(model, args.in_channels)
+        input_shape = (15, args.height, args.width)
+
+    else:
+        wrapped_model = model
+        input_shape = (args.in_channels, args.height, args.width)
+
     macs, params = get_model_complexity_info(
-        model,
-        (args.in_channels, args.height, args.width),
+        wrapped_model,
+        input_shape,
         as_strings=True,
         print_per_layer_stat=False,
         verbose=False
@@ -56,11 +82,11 @@ def main():
         batch_size = args.batch_size
         if args.architecture.lower() in ["fusionnet", "resfusionnet"]:
             dummy_input = {
-                'b10': torch.randn(batch_size, 3, args.height, args.width).to(device),
-                'b11': torch.randn(batch_size, 3, args.height, args.width).to(device),
-                'b6': torch.randn(batch_size, 3, args.height, args.width).to(device),
-                'b7': torch.randn(batch_size, 3, args.height, args.width).to(device),
-                'b76': torch.randn(batch_size, 3, args.height, args.width).to(device),
+                'b10': torch.randn(batch_size, args.in_channels, args.height, args.width).to(device),
+                'b11': torch.randn(batch_size, args.in_channels, args.height, args.width).to(device),
+                'b6': torch.randn(batch_size, args.in_channels, args.height, args.width).to(device),
+                'b7': torch.randn(batch_size, args.in_channels, args.height, args.width).to(device),
+                'b76': torch.randn(batch_size, args.in_channels, args.height, args.width).to(device),
             }
         else:
             dummy_input = torch.randn(
