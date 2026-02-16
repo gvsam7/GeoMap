@@ -54,12 +54,21 @@ def main():
     if torch.cuda.is_available():
 
         batch_size = args.batch_size
-        dummy_input = torch.randn(
-            batch_size,
-            args.in_channels,
-            args.height,
-            args.width
-        ).to(device)
+        if args.architecture.lower() in ["fusionnet", "resfusionnet"]:
+            dummy_input = {
+                'b10': torch.randn(batch_size, 1, args.height, args.width).to(device),
+                'b11': torch.randn(batch_size, 1, args.height, args.width).to(device),
+                'b6': torch.randn(batch_size, 1, args.height, args.width).to(device),
+                'b7': torch.randn(batch_size, 1, args.height, args.width).to(device),
+                'b76': torch.randn(batch_size, 1, args.height, args.width).to(device),
+            }
+        else:
+            dummy_input = torch.randn(
+                batch_size,
+                args.in_channels,
+                args.height,
+                args.width
+            ).to(device)
 
         # Warmup
         for _ in range(50):
