@@ -39,11 +39,11 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
         model = DilGabMPResNet50(in_channels, num_classes)
     elif architecture == 'vit':
         model = ViT(in_channels, num_classes)
-    elif architecture == 'vit_s16_scratch':
+    elif architecture == 'vit_s16':
         model = vit_s_16(weights=None)
         # replace classifier head
         model.heads.head = nn.Linear(model.heads.head.in_features, num_classes)
-    elif architecture == 'vit_b16_scratch':
+    elif architecture == 'vit_b16':
         model = vit_b_16(weights=None)
         model.heads.head = nn.Linear(model.heads.head.in_features, num_classes)
     elif architecture == 'fusionnet':
