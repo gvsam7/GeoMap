@@ -1,6 +1,7 @@
 import torchvision
 from torch import nn
 from models.ResNet import ResNet18, ResNet50
+from torchvision.models import resnet18, ResNet18_Weights
 from models.DilGabMPResNet18 import DilGabMPResNet18, DilGabMPResNet50
 from models.FusionNet import FusionNet
 from models.ResFusionNet import ResFusionNet
@@ -39,13 +40,28 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
     elif architecture == 'resfusionnet':
         model = ResFusionNet(in_channels, num_classes)
     elif architecture == 'tlresnet18':
+        if pretrained == 'True':
+            print(f"Transfer Learning, Pretrained = {pretrained}")
+            weights = ResNet18_Weights.DEFAULT
+        else:
+            weights = None
+
+        model = resnet18(weights=weights)
+
+        if pretrained == 'True':
+            for param in model.parameters():
+                param.requires_grad = requires_grad
+            print(f"requires_grad = {requires_grad}")
+
+        model.fc = nn.Linear(512, num_classes)
+        """elif architecture == 'tlresnet18':
         model = torchvision.models.resnet18(pretrained)
         if pretrained == 'True':
             print(f"Transfer Learning, Pretrained = {pretrained}")
             for param in model.parameters():
                 param.requires_grad = requires_grad
             print(f"requires_grad = {requires_grad}")
-            model.fc = nn.Linear(512, num_classes)
+            model.fc = nn.Linear(512, num_classes)"""
     elif architecture == 'resnet50':
         model = ResNet50(in_channels, num_classes)
     elif architecture == 'tlresnet50':
