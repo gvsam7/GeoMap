@@ -170,7 +170,7 @@ def main():
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
     if "vit" in args.architecture.lower() or "minipatch" in args.architecture.lower():
-        optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.05)
+        optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)  # weight_decay was 0.05
     else:
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
     # criterion = loss_fun(args.class_weighting)
