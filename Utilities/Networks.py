@@ -5,6 +5,7 @@ from torchvision.models import resnet18, ResNet18_Weights
 from torchvision.models import resnet50, ResNet50_Weights
 from torchvision.models import vgg13, VGG13_Weights
 from torchvision.models import densenet161, DenseNet161_Weights
+from torchvision.models import vit_s_16, vit_b_16
 from models.DilGabMPResNet18 import DilGabMPResNet18, DilGabMPResNet50
 from models.FusionNet import FusionNet
 from models.ResFusionNet import ResFusionNet
@@ -38,6 +39,13 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
         model = DilGabMPResNet50(in_channels, num_classes)
     elif architecture == 'vit':
         model = ViT(in_channels, num_classes)
+    elif architecture == 'vit_s16_scratch':
+        model = vit_s_16(weights=None)
+        # replace classifier head
+        model.heads.head = nn.Linear(model.heads.head.in_features, num_classes)
+    elif architecture == 'vit_b16_scratch':
+        model = vit_b_16(weights=None)
+        model.heads.head = nn.Linear(model.heads.head.in_features, num_classes)
     elif architecture == 'fusionnet':
         model = FusionNet(in_channels, num_classes)
     elif architecture == 'resfusionnet':

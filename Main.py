@@ -169,8 +169,12 @@ def main():
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
+    if "vit" in args.architecture.lower():
+        optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.05)
+    else:
+        optimizer = optim.Adam(model.parameters(), lr=args.lr)
     # criterion = loss_fun(args.class_weighting)
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    # optimizer = optim.Adam(model.parameters(), lr=args.lr)  # commented out due to the ViT
 
     # Define Scheduler
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=10, verbose=True)
