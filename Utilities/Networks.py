@@ -2,6 +2,7 @@ import torchvision
 from torch import nn
 from models.ResNet import ResNet18, ResNet50
 from torchvision.models import resnet18, ResNet18_Weights
+from torchvision.models import vgg13, VGG13_Weights
 from models.DilGabMPResNet18 import DilGabMPResNet18, DilGabMPResNet50
 from models.FusionNet import FusionNet
 from models.ResFusionNet import ResFusionNet
@@ -64,7 +65,21 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
             model.fc = nn.Linear(512, num_classes)"""
     elif architecture == 'resnet50':
         model = ResNet50(in_channels, num_classes)
-    elif architecture == 'tlresnet50':
+    elif architecture == 'tlvgg13':
+        use_pretrained = (pretrained == 'True')
+
+        weights = VGG13_Weights.DEFAULT if use_pretrained else None
+        model = vgg13(weights=weights)
+
+        if use_pretrained:
+            print(f"Transfer Learning, Pretrained = {pretrained}")
+            for param in model.parameters():
+                param.requires_grad = requires_grad
+            print(f"requires_grad = {requires_grad}")
+
+        # Replace classifier head
+        model.classifier[6] = nn.Linear(4096, num_classes)
+        """elif architecture == 'tlresnet50':
         model = torchvision.models.resnet50(pretrained)
         if pretrained == 'True':
             print(f"Transfer Learning, Pretrained={pretrained}")
@@ -106,7 +121,7 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
                                                  nn.Dropout(),
                                                  nn.Linear(4096, 2))
         else:
-            print(f"Fully trained from Sat data, Pretrained={pretrained}")
+            print(f"Fully trained from Sat data, Pretrained={pretrained}")"""
     else:
         model = torchvision.models.densenet161(pretrained)
         if pretrained == 'True':
