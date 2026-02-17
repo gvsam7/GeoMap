@@ -38,7 +38,15 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
     elif architecture == 'dilgabmpresnet50':
         model = DilGabMPResNet50(in_channels, num_classes)
     elif architecture == 'vit':
-        model = ViT(in_channels, num_classes)
+        model = ViT(
+            img_size=256,
+            in_channels=in_channels,
+            patch_size=16,
+            hidden_size=128,
+            num_layers=4,
+            num_heads=4,
+            num_classes=num_classes
+        )
         """elif architecture == 'vit_s16':
         model = vit_s_16(weights=None)
         # replace classifier head
