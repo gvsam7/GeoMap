@@ -4,6 +4,7 @@ from models.ResNet import ResNet18, ResNet50
 from torchvision.models import resnet18, ResNet18_Weights
 from torchvision.models import resnet50, ResNet50_Weights
 from torchvision.models import vgg13, VGG13_Weights
+from torchvision.models import densenet161, DenseNet161_Weights
 from models.DilGabMPResNet18 import DilGabMPResNet18, DilGabMPResNet50
 from models.FusionNet import FusionNet
 from models.ResFusionNet import ResFusionNet
@@ -137,7 +138,7 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
                                                  nn.Dropout(),
                                                  nn.Linear(4096, 2))
         else:
-            print(f"Fully trained from Sat data, Pretrained={pretrained}")"""
+            print(f"Fully trained from Sat data, Pretrained={pretrained}")
     else:
         model = torchvision.models.densenet161(pretrained)
         if pretrained == 'True':
@@ -145,5 +146,20 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
             for param in model.parameters():
                 param.requires_grad = requires_grad
             print(f"requires_grad = {requires_grad}")
-            model.classifier = nn.Linear(2208, num_classes)
+            model.classifier = nn.Linear(2208, num_classes)"""
+    else:
+        # architecture == 'tldensenet161':
+        use_pretrained = (pretrained == 'True')
+
+        weights = DenseNet161_Weights.DEFAULT if use_pretrained else None
+        model = densenet161(weights=weights)
+
+        if use_pretrained:
+            print(f"Transfer Learning, Pretrained = {pretrained}")
+            for param in model.parameters():
+                param.requires_grad = requires_grad
+            print(f"requires_grad = {requires_grad}")
+
+        # DenseNet161 final classifier input = 2208
+        model.classifier = nn.Linear(2208, num_classes)
     return model
