@@ -12,6 +12,7 @@ from models.ResFusionNet import ResFusionNet
 from models.CNN import CNN4, CNN5, CNN6, CNN7
 from models.VGG import VGG13
 from models.ViT import ViT
+from models.MiniPatchTransformer import MiniPatchTransformer
 from models.Identity import Identity
 from models.EfficientNet import EfficientNet
 from models.DGMPCNN5 import DGMPCNN5
@@ -39,6 +40,16 @@ def networks(architecture, in_channels, num_classes, pretrained, requires_grad, 
         model = DilGabMPResNet50(in_channels, num_classes)
     elif architecture == 'vit':
         model = ViT(
+            img_size=256,
+            in_channels=in_channels,
+            patch_size=16,
+            hidden_size=128,
+            num_layers=4,
+            num_heads=4,
+            num_classes=num_classes
+        )
+    elif architecture == 'minipatchtransformer':
+        model = MiniPatchTransformer(
             img_size=256,
             in_channels=in_channels,
             patch_size=16,

@@ -33,6 +33,6 @@ def arguments():
                                                                 "tldensenet161=pretrain DenseNet161,"
                                                                 "fusionnet=FusionNet, resfusionnet=ResFusionNet, "
                                                                 "vit=ViT, dgmpcnn5=DGMPCNN5, vit_s16= vit_s_16, "
-                                                                "vit_b16=vit_b_16")
-
+                                                                "vit_b16=vit_b_16, "
+                                                                "minipatchtransformer = MiniPatchTransformer")
     return parser.parse_args()
